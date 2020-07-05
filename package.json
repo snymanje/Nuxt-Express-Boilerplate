@@ -1,0 +1,26 @@
+{
+    "name": "Front-Backend-Api-Auth",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "server-dev": "nodemon server/server.js",
+        "client-dev": "npm run dev --prefix client-nuxt",
+        "start-dev": "concurrently \"npm run server-dev\" \"npm run client-dev\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/snymanje/AuthInAction.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/snymanje/AuthInAction/issues"
+    },
+    "homepage": "https://github.com/snymanje/AuthInAction#readme",
+    "dependencies": {
+        "concurrently": "^5.2.0",
+        "nodemon": "^2.0.4"
+    }
+}
