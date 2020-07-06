@@ -1,5 +1,7 @@
 const express = require('express');
-require('dotenv').config();
+require('dotenv').config({
+    path: `${ __dirname}/.env`
+})
 
 const app = express();
 const cookieParser = require('cookie-parser');
@@ -21,28 +23,27 @@ const profileRoutes = require('./router/profileRoutes');
 
 // connect to mongodb
 mongoose
-  .connect(
-    'mongodb://auth:auth123@jeanscluster-shard-00-00-wwzcb.mongodb.net:27017,jeanscluster-shard-00-01-wwzcb.mongodb.net:27017,jeanscluster-shard-00-02-wwzcb.mongodb.net:27017/authtutorial?ssl=true&replicaSet=JeansCluster-shard-0&authSource=admin&retryWrites=true&w=majority',
-    {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true,
-    }
-  )
-  .then(() => {
-    // eslint-disable-next-line no-console
-    console.log('Connected to mongodb');
-  })
-  .catch((error) => {
-    // eslint-disable-next-line no-console
-    console.log('Error connecting to mongodb', error);
-  });
+    .connect(
+        process.env.DBCONNECTIONSTRING, {
+            useNewUrlParser: true,
+            useCreateIndex: true,
+            useFindAndModify: false,
+            useUnifiedTopology: true,
+        }
+    )
+    .then(() => {
+        // eslint-disable-next-line no-console
+        console.log('Connected to mongodb');
+    })
+    .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log('Error connecting to mongodb', error);
+    });
 
 const rateLimiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests from this IP, try again later',
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many requests from this IP, try again later',
 });
 
 app.use(cookieParser());
@@ -50,15 +51,15 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(helmet());
 app.use(
-  hpp({
-    whitelist: [],
-  })
+    hpp({
+        whitelist: [],
+    })
 );
 app.use(
-  cors({
-    origin: 'http://localhost:8080',
-    credentials: true,
-  })
+    cors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+    })
 );
 app.use('/auth', rateLimiter);
 app.use(bodyParser.json());
@@ -69,12 +70,13 @@ app.use('/profile', profileRoutes);
 
 // Catch all routes
 app.all('*', (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!!!`, 500));
+    next(new AppError(`Can't find ${req.originalUrl} on this server!!!`, 500));
 });
 
 app.use(globalErrorHandler);
 
-app.listen(5000, () => {
-  // eslint-disable-next-line no-console
-  console.log('Listening on port 5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log('Listening on port 5000');
 });
