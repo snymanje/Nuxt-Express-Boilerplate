@@ -46,6 +46,16 @@
               >Forgot Password?</a
             >
           </div>
+          <div class="mt-2">
+            <nuxt-link to="/signup">
+              <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+              >
+                Sign Up
+              </button>
+            </nuxt-link>
+          </div>
         </form>
         <!-- <p class="text-center text-gray-500 text-xs">
           &copy;2020 Acme Corp. All rights reserved.
