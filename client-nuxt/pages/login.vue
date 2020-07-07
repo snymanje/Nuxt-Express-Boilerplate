@@ -74,22 +74,13 @@
                 >Forgot Password?</a
               >
             </div>
-            <!-- <div class="mt-2">
-              <nuxt-link to="/signup">
-                <button
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Sign Up
-                </button>
-              </nuxt-link>
-            </div> -->
           </form>
           <p class="text-center text-gray-500 text-md">
             Don't have an account?
-            <span
+            <nuxt-link
+              to="/signup"
               class="text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
-              >Sign Up</span
+              >Sign Up</nuxt-link
             >
           </p>
         </div>
@@ -108,7 +99,25 @@
 </template>
 
 <script>
-export default {}
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+    }
+  },
+  methods: {
+    async login() {
+      try {
+        const results = await this.$axios.$post('/auth/login', {
+          email: this.email,
+          password: this.password,
+        })
+        this.$router.push('/')
+      } catch (error) {
+        console.log(error.response.data.message)
+      }
+    },
+  },
+}
 </script>
-
-<style lang="scss" scoped></style>

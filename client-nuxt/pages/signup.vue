@@ -1,101 +1,121 @@
 <template>
-  <div class="bg-gray-800 h-screen">
-    <div class="flex items-center justify-center h-full">
-      <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div class="md:flex md:items-center mb-6">
-          <div class="md:w-1/3">
-            <label
-              class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              for="inline-full-name"
-            >
-              Full Name
-            </label>
-          </div>
-          <div class="md:w-2/3">
-            <input
-              id="inline-full-name"
-              v-model="name"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="text"
-            />
-          </div>
-        </div>
-        <div class="md:flex md:items-center mb-6">
-          <div class="md:w-1/3">
-            <label
-              class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              for="inline-full-name"
-            >
-              Email
-            </label>
-          </div>
-          <div class="md:w-2/3">
-            <input
-              id="inline-full-name"
-              v-model="email"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="email"
-            />
-          </div>
-        </div>
-        <div class="md:flex md:items-center mb-6">
-          <div class="md:w-1/3">
-            <label
-              class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              for="inline-username"
-            >
-              Password
-            </label>
-          </div>
-          <div class="md:w-2/3">
-            <input
-              id="inline-username"
-              v-model="password"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="password"
-            />
-          </div>
-        </div>
-        <div class="md:flex md:items-center mb-6">
-          <div class="md:w-1/3">
-            <label
-              class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
-              for="inline-username"
-            >
-              Confirm Password
-            </label>
-          </div>
-          <div class="md:w-2/3">
-            <input
-              id="inline-username"
-              v-model="passwordConfirm"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              type="password"
-            />
-          </div>
-        </div>
-        <!-- <div class="md:flex md:items-center mb-6">
-          <div class="md:w-1/3"></div>
-          <label class="md:w-2/3 block text-gray-500 font-bold">
-            <input class="mr-2 leading-tight" type="checkbox" />
-            <span class="text-sm">
-              Send me your newsletter!
-            </span>
-          </label>
-        </div> -->
-        <div class="md:flex md:items-center">
-          <div class="md:w-1/3"></div>
-          <div class="md:w-2/3">
+  <div
+    class="flex flex-wrap h-screen"
+    style="font-family: 'Open Sans', sans-serif;"
+  >
+    <div class="w-1/2">
+      <div class="flex items-center justify-center">
+        <img
+          src="~/assets/images/signup_ml.jpg"
+          alt="signup image"
+          class="object-cover h-screen object-center"
+        />
+      </div>
+    </div>
+    <div class="w-1/2">
+      <div class="flex items-center justify-center h-full">
+        <div class="w-full max-w-md">
+          <h1 class="font-bold text-4xl text-center text-black mb-6">
+            Sign up for an account
+          </h1>
+          <p class="text-gray-800 text-md">Sign up with</p>
+          <div class="flex justify-between mt-1">
             <button
-              class="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
-              type="button"
-              @click="signup"
+              class="w-1/3 mr-2 rounded-md border-gray-400 border-solid border bg-white px-4 py-2"
             >
-              Sign Up
+              Facebook
+            </button>
+            <button
+              class="w-1/3 mr-2 rounded-md border-gray-400 border-solid border bg-white px-4 py-2"
+            >
+              Google
+            </button>
+            <button
+              class="w-1/3 rounded-md border-gray-400 border-solid border bg-white px-4 py-2"
+            >
+              Github
             </button>
           </div>
+          <div class="flex items-center justify-between my-6">
+            <div class="flex-1 border border-solid border-gray-400"></div>
+            <div class="flex-0 px-2 font-semibold">Or continue with</div>
+            <div class="flex-1 border border-solid border-gray-400"></div>
+          </div>
+          <form class="bg-white rounded pt-6 pb-8 mb-4">
+            <div class="mb-3">
+              <label
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="name"
+                >Name</label
+              >
+              <input
+                id="name"
+                v-model="name"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+              />
+            </div>
+            <div class="mb-3">
+              <label
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="email"
+                >Email address</label
+              >
+              <input
+                id="email"
+                v-model="email"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+              />
+            </div>
+            <div class="mb-3">
+              <label
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="password"
+                >Password</label
+              >
+              <input
+                id="password"
+                v-model="password"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="password"
+              />
+              <!-- <p class="text-red-500 text-xs italic">Please choose a password.</p> -->
+            </div>
+            <div class="mb-3">
+              <label
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="passwordConfirm"
+                >Confirm Password</label
+              >
+              <input
+                id="passwordConfirm"
+                v-model="passwordConfirm"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="password"
+              />
+              <!-- <p class="text-red-500 text-xs italic">Please choose a password.</p> -->
+            </div>
+            <div class="flex flex-col items-center">
+              <button
+                class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="button"
+                @click="signup"
+              >
+                Sign Up
+              </button>
+            </div>
+          </form>
+          <p class="text-center text-gray-500 text-md">
+            Already have an account?
+            <nuxt-link
+              to="/"
+              class="text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
+              >Sign In</nuxt-link
+            >
+          </p>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
