@@ -26,11 +26,11 @@
             <input
               id="password"
               v-model="password"
-              class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               type="password"
               placeholder="******************"
             />
-            <p class="text-red-500 text-xs italic">Please choose a password.</p>
+            <!-- <p class="text-red-500 text-xs italic">Please choose a password.</p> -->
           </div>
           <div class="flex items-center justify-between">
             <button
@@ -47,9 +47,9 @@
             >
           </div>
         </form>
-        <p class="text-center text-gray-500 text-xs">
+        <!-- <p class="text-center text-gray-500 text-xs">
           &copy;2020 Acme Corp. All rights reserved.
-        </p>
+        </p> -->
       </div>
     </div>
   </div>
@@ -66,16 +66,13 @@ export default {
   methods: {
     async login() {
       try {
-        const results = await this.$axios.$post(
-          'http://localhost:5000/auth/login',
-          {
-            email: this.username,
-            password: this.password,
-          }
-        )
+        const results = await this.$axios.$post('/auth/login', {
+          email: this.username,
+          password: this.password,
+        })
         console.log(results)
       } catch (error) {
-        console.log(error)
+        console.log(error.response.data.message)
       }
     },
   },
