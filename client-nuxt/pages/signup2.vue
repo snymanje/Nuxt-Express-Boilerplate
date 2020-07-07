@@ -85,9 +85,13 @@
               </nuxt-link>
             </div> -->
           </form>
-          <!-- <p class="text-center text-gray-500 text-xs">
-          &copy;2020 Acme Corp. All rights reserved.
-        </p> -->
+          <p class="text-center text-gray-500 text-md">
+            Don't have an account?
+            <span
+              class="text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
+              >Sign Up</span
+            >
+          </p>
         </div>
       </div>
     </div>
