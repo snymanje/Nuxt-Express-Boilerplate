@@ -37,9 +37,15 @@
             </button>
           </div>
           <div class="flex items-center justify-between my-6">
-            <div class="flex-1 border border-solid border-gray-400"></div>
-            <div class="flex-0 px-2 font-semibold">Or continue with</div>
-            <div class="flex-1 border border-solid border-gray-400"></div>
+            <div
+              class="flex-1 border border-solid border-gray-400"
+            ></div>
+            <div class="flex-0 px-2 font-semibold">
+              Or continue with
+            </div>
+            <div
+              class="flex-1 border border-solid border-gray-400"
+            ></div>
           </div>
           <form class="bg-white rounded pt-6 pb-8 mb-4">
             <div class="mb-3">
@@ -109,7 +115,7 @@
           <p class="text-center text-gray-500 text-md">
             Already have an account?
             <nuxt-link
-              to="/"
+              to="/login"
               class="text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
               >Sign In</nuxt-link
             >
@@ -128,7 +134,7 @@ export default {
       email: '',
       password: '',
       passwordConfirm: '',
-    }
+    };
   },
   methods: {
     async signup() {
@@ -138,12 +144,12 @@ export default {
           email: this.email,
           password: this.password,
           passwordConfirm: this.passwordConfirm,
-        })
-        console.log(results)
+        });
+        console.log(results);
       } catch (error) {
-        console.log(error.response.data.message)
+        console.log(error.response.data.message);
       }
     },
   },
-}
+};
 </script>

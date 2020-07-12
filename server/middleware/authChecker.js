@@ -11,7 +11,6 @@ module.exports = async (req, res, next) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
-    // eslint-disable-next-line prefer-destructuring
     token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.tokenSignature && req.cookies.tokenPayload) {
     token = `${req.cookies.tokenPayload}.${req.cookies.tokenSignature}`;
@@ -34,7 +33,11 @@ module.exports = async (req, res, next) => {
   }
 
   const arrayToken = token.split('.');
-  const [tokenHeader, tokenPayload] = arrayToken;
+  const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+
+  res.cookie('tokenSignature', tokenSignature, {
+    httpOnly: true,
+  });
   res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
     maxAge: process.env.COOKIEEXPIRES,
   });

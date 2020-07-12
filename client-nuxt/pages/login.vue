@@ -3,9 +3,9 @@
     class="flex flex-wrap h-screen"
     style="font-family: 'Open Sans', sans-serif;"
   >
-    <div class="w-1/2">
+    <div class="w-full md:w-1/2">
       <div class="flex items-center justify-center h-full">
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md px-4">
           <h1 class="font-bold text-4xl text-center text-black mb-6">
             Sign in to you account
           </h1>
@@ -28,9 +28,15 @@
             </button>
           </div>
           <div class="flex items-center justify-between my-8">
-            <div class="flex-1 border border-solid border-gray-400"></div>
-            <div class="flex-1 px-2 font-semibold">Or continue with</div>
-            <div class="flex-1 border border-solid border-gray-400"></div>
+            <div
+              class="flex-1 border border-solid border-gray-400"
+            ></div>
+            <div class="flex-1 px-2 font-semibold">
+              Or continue with
+            </div>
+            <div
+              class="flex-1 border border-solid border-gray-400"
+            ></div>
           </div>
           <form class="bg-white rounded pt-6 pb-8 mb-4">
             <div class="mb-4">
@@ -41,7 +47,7 @@
               >
               <input
                 id="email"
-                v-model="email"
+                v-model="login.email"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
               />
@@ -54,7 +60,7 @@
               >
               <input
                 id="password"
-                v-model="password"
+                v-model="login.password"
                 class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 type="password"
               />
@@ -64,7 +70,7 @@
               <button
                 class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                @click="login"
+                @click="userLogin"
               >
                 Sign In
               </button>
@@ -86,10 +92,10 @@
         </div>
       </div>
     </div>
-    <div class="w-1/2">
+    <div class="hidden md:block md:w-1/2">
       <div class="flex items-center justify-center">
         <img
-          src="~/assets/images/signup_ml.jpg"
+          src="~/assets/images/architecture-buildings-business-city.jpg"
           alt="signup image"
           class="object-cover h-screen object-center"
         />
@@ -99,25 +105,35 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
 export default {
   data() {
     return {
-      email: '',
-      password: '',
-    }
+      login: {
+        email: 'jean.snyman6@gmail.com',
+        password: 'Melanie143',
+      },
+    };
   },
   methods: {
-    async login() {
+    ...mapActions(['loggedIn']),
+    ...mapGetters(['auth']),
+    async userLogin() {
       try {
-        const results = await this.$axios.$post('/auth/login', {
-          email: this.email,
-          password: this.password,
-        })
-        this.$router.push('/')
+        await this.$axios.$post('/auth/login', {
+          email: this.login.email,
+          password: this.login.password,
+        });
+        const user = await this.$axios.$get('/user/getCurrentUser');
+        await this.loggedIn(user);
+        const authState = await this.auth();
+        if (authState.loggedIn === true) {
+          this.$router.push(authState.redirect.home);
+        }
       } catch (error) {
-        console.log(error.response.data.message)
+        console.log(error.response.data.message);
       }
     },
   },
-}
+};
 </script>

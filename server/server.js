@@ -18,6 +18,7 @@ const bodyParser = require('body-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
+const authRoutes = require('./router/authRoutes');
 const userRoutes = require('./router/userRoutes');
 const profileRoutes = require('./router/profileRoutes');
 
@@ -65,7 +66,8 @@ app.use('/auth', rateLimiter);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/auth', userRoutes);
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 app.use('/profile', profileRoutes);
 
 // Catch all routes
