@@ -24,6 +24,8 @@
     "mongoose": "^5.9.4",
     "nodemailer": "^6.4.5",
     "nodemon": "^2.0.2",
+    "passport": "^0.4.1",
+    "passport-google-plus-token": "^2.1.0",
     "validator": "^12.2.0",
     "xss-clean": "^0.1.1"
   },
