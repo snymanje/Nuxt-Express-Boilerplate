@@ -10,13 +10,25 @@ const {
     generateRefreshToken,
 } = require('../utils/generateTokens');
 
-exports.signup = async(req, res) => {
+exports.google = async(req, res, next) => {
+    // return tokens
+    res.status(200).json({
+        status: true
+    });
+}
+
+exports.signup = async(req, res, next) => {
+
+    if(req.body.password !== req.body.passwordConfirm) {
+        return next(new AppError('Password and Confirm Password do not match.', 400));
+    }
     const newUser = await User.create({
-        name: req.body.name,
-        email: req.body.email,
+         method: 'local',
+        'local.name': req.body.name,
+        'local.email': req.body.email,
         role: req.body.role,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm,
+        'local.password': req.body.password,
+        'local.passwordConfirm': req.body.passwordConfirm,
     });
 
     // Create token with user id as the payload
@@ -109,9 +121,10 @@ exports.login = async(req, res, next) => {
     if (!email || !password)
         return next(new AppError('Please enter a username and password', 400));
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ 'local.email': email }).select('+local.password');
 
-    if (!user || !(await user.correctPassword(password, user.password)))
+    console.log(user)
+    if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
     const token = generateToken(user);
