@@ -36,8 +36,7 @@ export default {
       },
       {
         rel: 'stylesheet',
-        href:
-          'https://fonts.googleapis.com/icon?family=Material+Icons',
+        href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
       },
     ],
   },
@@ -49,7 +48,10 @@ export default {
    ** Plugins to load before mounting the App
    ** https://nuxtjs.org/guide/plugins
    */
-  plugins: [{ src: '~/plugins/persistedstate.js', ssr: false }],
+  plugins: [
+    { src: '~/plugins/persistedstate.js', ssr: false },
+    { src: '~/plugins/vue-google-oauth2.js', ssr: false },
+  ],
   /*
    ** Auto import components
    ** See https://nuxtjs.org/api/configuration-components

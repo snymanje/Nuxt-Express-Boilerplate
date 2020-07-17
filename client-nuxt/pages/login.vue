@@ -18,6 +18,7 @@
             </button>
             <button
               class="w-1/3 mr-2 rounded-md border-gray-400 border-solid border bg-white px-4 py-2"
+              @click="googleLogin"
             >
               Google
             </button>
@@ -28,15 +29,11 @@
             </button>
           </div>
           <div class="flex items-center justify-between my-8">
-            <div
-              class="flex-1 border border-solid border-gray-400"
-            ></div>
+            <div class="flex-1 border border-solid border-gray-400"></div>
             <div class="flex-1 px-2 font-semibold">
               Or continue with
             </div>
-            <div
-              class="flex-1 border border-solid border-gray-400"
-            ></div>
+            <div class="flex-1 border border-solid border-gray-400"></div>
           </div>
           <form class="bg-white rounded pt-6 pb-8 mb-4">
             <div class="mb-4">
@@ -70,7 +67,7 @@
               <button
                 class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                @click="userLogin"
+                @click="localLogin"
               >
                 Sign In
               </button>
@@ -118,11 +115,28 @@ export default {
   methods: {
     ...mapActions(['loggedIn']),
     ...mapGetters(['auth']),
-    async userLogin() {
+    async localLogin() {
       try {
         await this.$axios.$post('/auth/login', {
           email: this.login.email,
           password: this.login.password,
+        });
+        const user = await this.$axios.$get('/user/getCurrentUser');
+        await this.loggedIn(user);
+        const authState = await this.auth();
+        if (authState.loggedIn === true) {
+          this.$router.push(authState.redirect.home);
+        }
+      } catch (error) {
+        console.log(error.response.data.message);
+      }
+    },
+    async googleLogin() {
+      try {
+        const { wc } = await this.$gAuth.signIn();
+        console.log(wc);
+        await this.$axios.$post('/auth/google2', {
+          access_token: wc.id_token,
         });
         const user = await this.$axios.$get('/user/getCurrentUser');
         await this.loggedIn(user);

@@ -10,20 +10,114 @@ const {
     generateRefreshToken,
 } = require('../utils/generateTokens');
 
-exports.google = async(req, res, next) => {
-    // return tokens
-    res.status(200).json({
-        status: true
+exports.googleLogin = async (req, res, next) => {
+
+    const { email, _id } = req.user;
+
+    const token = generateToken(req.user);
+    const refreshtoken = generateRefreshToken(req.user);
+
+    const arrayToken = token.split('.');
+    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+
+    res.cookie('refreshToken', refreshtoken, {
+        httpOnly: true,
+    });
+    res.cookie('tokenSignature', tokenSignature, {
+        httpOnly: true,
+    });
+    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
+        maxAge: process.env.COOKIEEXPIRES,
+    });
+
+    res.status(201).json({
+        status: true,
+        data: {
+            user: {
+                email,
+                _id,
+            },
+        },
     });
 }
 
-exports.signup = async(req, res, next) => {
+exports.googleLogin2 = async (req, res, next) => {
 
-    if(req.body.password !== req.body.passwordConfirm) {
+    const CLIENT_ID = process.env.GOOGLECLIENTID;
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client(CLIENT_ID);
+
+    const ticket = await client.verifyIdToken({
+        idToken: req.body.access_token,
+        audience: CLIENT_ID,
+    });
+    const { sub, email, other } = ticket.getPayload();
+    console.log(other);
+
+    // check if the current user exists in the DB
+    const user = await User.findOne({ 'google.id': sub });
+    if (user) {
+        const token = generateToken(user);
+        const refreshtoken = generateRefreshToken(user);
+
+        const arrayToken = token.split('.');
+        const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+
+        res.cookie('refreshToken', refreshtoken, {
+            httpOnly: true,
+        });
+        res.cookie('tokenSignature', tokenSignature, {
+            httpOnly: true,
+        });
+        res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
+            maxAge: process.env.COOKIEEXPIRES,
+        });
+
+        res.status(200).json({
+            status: true,
+            user
+        });
+    }
+
+    // Id user does not exist creat a new one`);
+    const newUser = await User.create({
+        method: 'google',
+        google: {
+            id: sub,
+            email: email
+        }
+    });
+
+    const token = generateToken(newUser);
+    const refreshtoken = generateRefreshToken(newUser);
+
+    const arrayToken = token.split('.');
+    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+
+    res.cookie('refreshToken', refreshtoken, {
+        httpOnly: true,
+    });
+    res.cookie('tokenSignature', tokenSignature, {
+        httpOnly: true,
+    });
+    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
+        maxAge: process.env.COOKIEEXPIRES,
+    });
+
+    res.status(200).json({
+        status: true,
+        newUser
+    });
+
+}
+
+exports.signup = async (req, res, next) => {
+
+    if (req.body.password !== req.body.passwordConfirm) {
         return next(new AppError('Password and Confirm Password do not match.', 400));
     }
     const newUser = await User.create({
-         method: 'local',
+        method: 'local',
         'local.name': req.body.name,
         'local.email': req.body.email,
         role: req.body.role,
@@ -37,17 +131,21 @@ exports.signup = async(req, res, next) => {
 
     const { name, email, _id } = newUser;
 
+    const arrayToken = token.split('.');
+    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+
     res.cookie('refreshToken', refreshtoken, {
         httpOnly: true,
     });
-    res.cookie('authToken', token, {
+    res.cookie('tokenSignature', tokenSignature, {
         httpOnly: true,
+    });
+    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
+        maxAge: process.env.COOKIEEXPIRES,
     });
 
     res.status(201).json({
         status: true,
-        token,
-        refreshtoken,
         data: {
             user: {
                 name,
@@ -58,7 +156,7 @@ exports.signup = async(req, res, next) => {
     });
 };
 
-exports.tokenRefresh = async(req, res, next) => {
+exports.tokenRefresh = async (req, res, next) => {
     // check for a token
     let refreshToken;
     const { authorization } = req.headers;
@@ -116,22 +214,21 @@ exports.tokenRefresh = async(req, res, next) => {
     });
 };
 
-exports.login = async(req, res, next) => {
+exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password)
         return next(new AppError('Please enter a username and password', 400));
 
     const user = await User.findOne({ 'local.email': email }).select('+local.password');
 
-    console.log(user)
     if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
     const token = generateToken(user);
-    const refreshtoken = generateRefreshToken(user._id);
+    const refreshtoken = generateRefreshToken(user);
 
-     const arrayToken = token.split('.');
-     const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+    const arrayToken = token.split('.');
+    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
 
     res.cookie('refreshToken', refreshtoken, {
         httpOnly: true,
@@ -149,7 +246,7 @@ exports.login = async(req, res, next) => {
     });
 };
 
-exports.logout = async(req, res, next) => {
+exports.logout = async (req, res, next) => {
     const { _id } = req.body;
     if (!_id)
         return next(new AppError('No user id provided', 400));
@@ -177,7 +274,7 @@ exports.logout = async(req, res, next) => {
     });
 };
 
-exports.forgotPassword = async(req, res, next) => {
+exports.forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
         return next(
@@ -189,8 +286,8 @@ exports.forgotPassword = async(req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${req.protocol}://${req.get(
-    'host'
-  )}/auth/resetPassword/${resetToken}`;
+        'host'
+    )}/auth/resetPassword/${resetToken}`;
 
     const message = `Forgot your password? Token ${resetUrl}`;
 
@@ -213,7 +310,7 @@ exports.forgotPassword = async(req, res, next) => {
     }
 };
 
-exports.resetPassword = async(req, res, next) => {
+exports.resetPassword = async (req, res, next) => {
     const hashedToken = crypto
         .createHash('sha256')
         .update(req.params.token)
@@ -247,7 +344,7 @@ exports.resetPassword = async(req, res, next) => {
     });
 };
 
-exports.updatePassword = async(req, res, next) => {
+exports.updatePassword = async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
     if (!user ||
         !(await user.correctPassword(req.body.passwordCurrent, user.password))

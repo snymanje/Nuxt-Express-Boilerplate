@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   local: {
     name: {
       type: String,
-      required: [true, 'Your name is required.'],
+      //required: [true, 'Your name is required.'],
       trim: true,
     },
     email: {
@@ -69,20 +69,20 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function (next) {
   try {
-    if(this.method !== "local") {
+    if (this.method !== "local") {
       next()
     }
     if (!this.isModified('local.password') || this.isNew) return next();
     this.local.passwordChangedAt = Date.now() - 1000;
     next();
   } catch (error) {
-      next(error)
+    next(error)
   }
 });
 
 userSchema.pre('save', async function (next) {
   try {
-    if(this.method !== "local") {
+    if (this.method !== "local") {
       next()
     }
     // only runs if password was modified
@@ -107,7 +107,7 @@ userSchema.methods.correctPassword = async function (
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   try {
-    if(this.method !== "local") {
+    if (this.method !== "local") {
       next()
     }
     if (this.local.passwordChangedAt) {
@@ -127,7 +127,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
 userSchema.methods.createPasswordResettoken = function () {
   try {
-    if(this.method !== "local") {
+    if (this.method !== "local") {
       next()
     }
     const resetToken = crypto.randomBytes(32).toString('hex');

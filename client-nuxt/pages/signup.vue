@@ -37,15 +37,11 @@
             </button>
           </div>
           <div class="flex items-center justify-between my-6">
-            <div
-              class="flex-1 border border-solid border-gray-400"
-            ></div>
+            <div class="flex-1 border border-solid border-gray-400"></div>
             <div class="flex-0 px-2 font-semibold">
               Or continue with
             </div>
-            <div
-              class="flex-1 border border-solid border-gray-400"
-            ></div>
+            <div class="flex-1 border border-solid border-gray-400"></div>
           </div>
           <form class="bg-white rounded pt-6 pb-8 mb-4">
             <div class="mb-3">

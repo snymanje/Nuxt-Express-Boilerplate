@@ -28,8 +28,10 @@ module.exports = async (req, res, next) => {
     );
   }
   // Check if the user changed his password.
-  if (loggedInUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError('Password has changed, please log in again', 401));
+  if (loggedInUser.method === 'local') {
+    if (loggedInUser.changedPasswordAfter(decoded.iat)) {
+      return next(new AppError('Password has changed, please log in again', 401));
+    }
   }
 
   const arrayToken = token.split('.');
