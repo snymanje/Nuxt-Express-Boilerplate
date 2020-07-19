@@ -14,7 +14,6 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 router.patch('/updateMyPassword', authChecker, authController.updatePassword);
 
-//router.post('/google', passport.authenticate('googleToken', { session: false }), authController.googleLogin);
-router.post('/google2', authController.googleLogin2);
+router.post('/google', authController.googleLogin);
 
 module.exports = router;

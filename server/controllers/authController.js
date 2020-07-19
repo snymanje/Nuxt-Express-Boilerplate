@@ -9,13 +9,13 @@ const {
     generateToken,
     generateRefreshToken,
 } = require('../utils/generateTokens');
+const { OAuth2Client } = require('google-auth-library');
 
-exports.googleLogin = async (req, res, next) => {
 
-    const { email, _id } = req.user;
-
-    const token = generateToken(req.user);
-    const refreshtoken = generateRefreshToken(req.user);
+const setCookies = (res, user) => {
+    console.log(user)
+    const token = generateToken(user);
+    const refreshtoken = generateRefreshToken(user);
 
     const arrayToken = token.split('.');
     const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
@@ -30,53 +30,37 @@ exports.googleLogin = async (req, res, next) => {
         maxAge: process.env.COOKIEEXPIRES,
     });
 
-    res.status(201).json({
-        status: true,
-        data: {
-            user: {
-                email,
-                _id,
-            },
-        },
-    });
+    return res;
 }
 
-exports.googleLogin2 = async (req, res, next) => {
-
+const googleStrategy = async (access_token) => {
     const CLIENT_ID = process.env.GOOGLECLIENTID;
-    const { OAuth2Client } = require('google-auth-library');
     const client = new OAuth2Client(CLIENT_ID);
 
     const ticket = await client.verifyIdToken({
-        idToken: req.body.access_token,
+        idToken: access_token,
         audience: CLIENT_ID,
     });
-    const { sub, email, other } = ticket.getPayload();
-    console.log(other);
+
+    return ticket;
+}
+
+exports.googleLogin = async (req, res, next) => {
+
+    const ticket = await googleStrategy(req.body.access_token);
+    const { sub, email } = ticket.getPayload();
 
     // check if the current user exists in the DB
-    const user = await User.findOne({ 'google.id': sub });
-    if (user) {
-        const token = generateToken(user);
-        const refreshtoken = generateRefreshToken(user);
-
-        const arrayToken = token.split('.');
-        const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-        res.cookie('refreshToken', refreshtoken, {
-            httpOnly: true,
-        });
-        res.cookie('tokenSignature', tokenSignature, {
-            httpOnly: true,
-        });
-        res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-            maxAge: process.env.COOKIEEXPIRES,
-        });
+    const existingUser = await User.findOne({ 'google.id': sub });
+    if (existingUser) {
+        setCookies(res, existingUser);
 
         res.status(200).json({
             status: true,
-            user
+            existingUser
         });
+
+        return;
     }
 
     // Id user does not exist creat a new one`);
@@ -88,21 +72,7 @@ exports.googleLogin2 = async (req, res, next) => {
         }
     });
 
-    const token = generateToken(newUser);
-    const refreshtoken = generateRefreshToken(newUser);
-
-    const arrayToken = token.split('.');
-    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-    res.cookie('refreshToken', refreshtoken, {
-        httpOnly: true,
-    });
-    res.cookie('tokenSignature', tokenSignature, {
-        httpOnly: true,
-    });
-    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-        maxAge: process.env.COOKIEEXPIRES,
-    });
+    setCookies(res, newUser);
 
     res.status(200).json({
         status: true,
@@ -171,6 +141,7 @@ exports.tokenRefresh = async (req, res, next) => {
     if (!refreshToken) {
         return next(new AppError('No refresh token found', 401));
     }
+
     // verify the token
     const decoded = await promisify(jwt.verify)(
         refreshToken,
@@ -184,9 +155,12 @@ exports.tokenRefresh = async (req, res, next) => {
             new AppError('User for this token nolonger exists, please register', 401)
         );
     }
-    // Check if the user changed his password.
-    if (loggedInUser.changedPasswordAfter(decoded.iat)) {
-        return next(new AppError('Password has changed, please log in again', 401));
+
+    if (loggedInUser.method === 'local') {
+        // Check if the user changed his password.
+        if (loggedInUser.changedPasswordAfter(decoded.iat)) {
+            return next(new AppError('Password has changed, please log in again', 401));
+        }
     }
 
     // create new tokens
@@ -224,21 +198,7 @@ exports.login = async (req, res, next) => {
     if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
-    const token = generateToken(user);
-    const refreshtoken = generateRefreshToken(user);
-
-    const arrayToken = token.split('.');
-    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-    res.cookie('refreshToken', refreshtoken, {
-        httpOnly: true,
-    });
-    res.cookie('tokenSignature', tokenSignature, {
-        httpOnly: true,
-    });
-    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-        maxAge: process.env.COOKIEEXPIRES,
-    });
+    setCookies(res, user);
 
     res.status(200).json({
         status: true,

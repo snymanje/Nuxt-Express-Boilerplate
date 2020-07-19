@@ -51,6 +51,7 @@ export default {
   plugins: [
     { src: '~/plugins/persistedstate.js', ssr: false },
     { src: '~/plugins/vue-google-oauth2.js', ssr: false },
+    { src: '~/plugins/axiosInterceptor.js', ssr: false },
   ],
   /*
    ** Auto import components

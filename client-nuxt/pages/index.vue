@@ -2,6 +2,7 @@
   <div>
     <h2>Home</h2>
     <button @click="logout">logout</button>
+    <button @click="protectedRoute">Protected Route</button>
   </div>
 </template>
 
@@ -21,7 +22,15 @@ export default {
         await this.loggedOut();
         await this.$router.push(redirect.login);
       } catch (error) {
-        console.log(error.response.data.message);
+        console.log(error.response);
+      }
+    },
+    async protectedRoute() {
+      try {
+        const result = await this.$axios.$get('/profile/');
+        console.log(`Protected route results: ${result.status}`);
+      } catch (error) {
+        // console.log(error);
       }
     },
   },
