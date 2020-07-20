@@ -10,6 +10,11 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
+  created() {
+    // eslint-disable-next-line nuxt/no-globals-in-created
+    const cookie = document.cookie;
+    console.log(cookie);
+  },
   methods: {
     ...mapActions(['loggedOut']),
     ...mapGetters(['auth']),

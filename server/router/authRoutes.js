@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const authChecker = require('../middleware/authChecker');
-const passport = require('passport');
-require('../middleware/passport');
+const googleAuth = require('../middleware/googleAuth')
 
 const authController = require('../controllers/authController');
 
@@ -14,6 +13,6 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 router.patch('/updateMyPassword', authChecker, authController.updatePassword);
 
-router.post('/google', authController.googleLogin);
+router.post('/google', googleAuth, authController.googleLogin);
 
 module.exports = router;

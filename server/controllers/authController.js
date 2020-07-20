@@ -9,76 +9,15 @@ const {
     generateToken,
     generateRefreshToken,
 } = require('../utils/generateTokens');
-const { OAuth2Client } = require('google-auth-library');
-
-
-const setCookies = (res, user) => {
-    console.log(user)
-    const token = generateToken(user);
-    const refreshtoken = generateRefreshToken(user);
-
-    const arrayToken = token.split('.');
-    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-    res.cookie('refreshToken', refreshtoken, {
-        httpOnly: true,
-    });
-    res.cookie('tokenSignature', tokenSignature, {
-        httpOnly: true,
-    });
-    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-        maxAge: process.env.COOKIEEXPIRES,
-    });
-
-    return res;
-}
-
-const googleStrategy = async (access_token) => {
-    const CLIENT_ID = process.env.GOOGLECLIENTID;
-    const client = new OAuth2Client(CLIENT_ID);
-
-    const ticket = await client.verifyIdToken({
-        idToken: access_token,
-        audience: CLIENT_ID,
-    });
-
-    return ticket;
-}
+const { setAuthCookies } = require('../utils/setAuthCookies')
 
 exports.googleLogin = async (req, res, next) => {
-
-    const ticket = await googleStrategy(req.body.access_token);
-    const { sub, email } = ticket.getPayload();
-
-    // check if the current user exists in the DB
-    const existingUser = await User.findOne({ 'google.id': sub });
-    if (existingUser) {
-        setCookies(res, existingUser);
-
+        const { user } = req.user;
+        setAuthCookies(res, req.user);
         res.status(200).json({
             status: true,
-            existingUser
+            user
         });
-
-        return;
-    }
-
-    // Id user does not exist creat a new one`);
-    const newUser = await User.create({
-        method: 'google',
-        google: {
-            id: sub,
-            email: email
-        }
-    });
-
-    setCookies(res, newUser);
-
-    res.status(200).json({
-        status: true,
-        newUser
-    });
-
 }
 
 exports.signup = async (req, res, next) => {
@@ -198,7 +137,7 @@ exports.login = async (req, res, next) => {
     if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
-    setCookies(res, user);
+    setAuthCookies(res, user);
 
     res.status(200).json({
         status: true,

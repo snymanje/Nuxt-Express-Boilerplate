@@ -41,7 +41,7 @@ const sendErrorProd = (err, res) => {
             message: err.message
         });
     } else {
-        console.error('ERROR', err);
+        // console.error('ERROR', err);
 
         res.status(500).json({
             status: 'error',
@@ -53,7 +53,6 @@ const sendErrorProd = (err, res) => {
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-    console.log(err.statusCode)
     if (process.env.NODE_ENV === 'development') {
         sendErrorDev(err, res);
     } else if (process.env.NODE_ENV === 'production') {
