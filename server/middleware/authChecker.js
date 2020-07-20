@@ -12,9 +12,10 @@ module.exports = async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.tokenSignature && req.cookies.tokenPayload) {
-    token = `${req.cookies.tokenPayload}.${req.cookies.tokenSignature}`;
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
+
   if (!token) {
     return next(new AppError('You are not logged in', 401));
   }
@@ -37,12 +38,12 @@ module.exports = async (req, res, next) => {
   const arrayToken = token.split('.');
   const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
 
-  res.cookie('tokenSignature', tokenSignature, {
+/*   res.cookie('tokenSignature', tokenSignature, {
     httpOnly: true,
   });
   res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
     maxAge: process.env.COOKIEEXPIRES,
-  });
+  }); */
 
   // Grant access to protected route
   req.user = loggedInUser;

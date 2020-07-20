@@ -3,6 +3,11 @@
     <h2>Home</h2>
     <button @click="logout">logout</button>
     <button @click="protectedRoute">Protected Route</button>
+    <nuxt-link
+      to="/profile"
+      class="text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
+      >Profile Page</nuxt-link
+    >
   </div>
 </template>
 
@@ -10,11 +15,6 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  created() {
-    // eslint-disable-next-line nuxt/no-globals-in-created
-    const cookie = document.cookie;
-    console.log(cookie);
-  },
   methods: {
     ...mapActions(['loggedOut']),
     ...mapGetters(['auth']),

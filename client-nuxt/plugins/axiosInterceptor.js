@@ -3,7 +3,6 @@ export default function ({ $axios, redirect, store }) {
   $axios.onError(async (error) => {
     const { config, response } = error;
     const originalRequest = config;
-
     if (
       !config.url.includes('/login') &&
       !config.url.includes('/auth/tokenRefresh')

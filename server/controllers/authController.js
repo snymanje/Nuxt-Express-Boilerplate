@@ -9,15 +9,15 @@ const {
     generateToken,
     generateRefreshToken,
 } = require('../utils/generateTokens');
-const { setAuthCookies } = require('../utils/setAuthCookies')
+const { setAuthCookies, clearAuthCookies } = require('../utils/setCookies')
 
 exports.googleLogin = async (req, res, next) => {
-        const { user } = req.user;
-        setAuthCookies(res, req.user);
-        res.status(200).json({
-            status: true,
-            user
-        });
+    const { user } = req.user;
+    setAuthCookies(res, req.user);
+    res.status(200).json({
+        status: true,
+        user
+    });
 }
 
 exports.signup = async (req, res, next) => {
@@ -35,23 +35,7 @@ exports.signup = async (req, res, next) => {
     });
 
     // Create token with user id as the payload
-    const token = generateToken(newUser);
-    const refreshtoken = generateRefreshToken(newUser);
-
-    const { name, email, _id } = newUser;
-
-    const arrayToken = token.split('.');
-    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-    res.cookie('refreshToken', refreshtoken, {
-        httpOnly: true,
-    });
-    res.cookie('tokenSignature', tokenSignature, {
-        httpOnly: true,
-    });
-    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-        maxAge: process.env.COOKIEEXPIRES,
-    });
+    setAuthCookies(res, newUser);
 
     res.status(201).json({
         status: true,
@@ -73,8 +57,8 @@ exports.tokenRefresh = async (req, res, next) => {
     if (authorization && authorization.startsWith('Bearer')) {
         // eslint-disable-next-line prefer-destructuring
         refreshToken = authorization.split(' ')[1];
-    } else if (req.cookies.refreshToken) {
-        refreshToken = req.cookies.refreshToken;
+    } else if (req.cookies.refreshTokenSignature && req.cookies.refreshTokenPayload) {
+        refreshToken = `${req.cookies.refreshTokenPayload}.${req.cookies.refreshTokenSignature}`;
     }
 
     if (!refreshToken) {
@@ -86,7 +70,7 @@ exports.tokenRefresh = async (req, res, next) => {
         refreshToken,
         process.env.REFRESHTOKENSECRET
     );
-
+        console.log(decoded)
     // Check if user exists
     const loggedInUser = await User.findById(decoded._id);
     if (!loggedInUser) {
@@ -103,27 +87,11 @@ exports.tokenRefresh = async (req, res, next) => {
     }
 
     // create new tokens
-    const token = generateToken(loggedInUser._id);
-    const refreshtoken = generateRefreshToken(loggedInUser._id);
-
-    const arrayToken = token.split('.');
-    const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
-
-    res.cookie('refreshToken', refreshtoken, {
-        httpOnly: true,
-    });
-    res.cookie('tokenSignature', tokenSignature, {
-        httpOnly: true,
-    });
-    res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-        maxAge: 30 * 1000,
-    });
+    setAuthCookies(res, loggedInUser);
 
     // return tokens
     res.status(200).json({
-        status: true,
-        token,
-        refreshtoken,
+        status: true
     });
 };
 
@@ -155,17 +123,7 @@ exports.logout = async (req, res, next) => {
     if (!user)
         return next(new AppError('User not found', 400));
 
-    res.cookie('refreshToken', false, {
-        httpOnly: true,
-        maxAge: 0,
-    });
-    res.cookie('tokenSignature', false, {
-        httpOnly: true,
-        maxAge: 0,
-    });
-    res.cookie('tokenPayload', false, {
-        maxAge: 0,
-    });
+    clearAuthCookies(res);
 
     res.status(200).json({
         status: true,

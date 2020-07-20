@@ -22,7 +22,7 @@ module.exports = async (req, res, next) => {
     const existingUser = await User.findOne({ 'google.id': sub });
     if (existingUser) {
         req.user = existingUser;
-        next();
+        return next();
     }
 
     // Id user does not exist creat a new one`);
@@ -35,5 +35,5 @@ module.exports = async (req, res, next) => {
     });
     
     req.user = newUser;
-    next();
+    return next();
 };
