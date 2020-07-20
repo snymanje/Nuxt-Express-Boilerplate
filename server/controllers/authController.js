@@ -3,9 +3,7 @@ const crypto = require('crypto');
 const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-const {
-    generateToken,
-    generateRefreshToken,
+const { generateToken
 } = require('../utils/generateTokens');
 const { setAuthCookies, clearAuthCookies } = require('../utils/setCookies')
 
@@ -34,7 +32,7 @@ exports.signup = async (req, res, next) => {
 exports.tokenRefresh = async (req, res, next) => {
     const user = req.user;
 
-    setAuthCookies(res, loggedInUser);
+    setAuthCookies(res, user);
     res.status(200).json({
         status: true,
         message: 'Token refreshed successfully.'
