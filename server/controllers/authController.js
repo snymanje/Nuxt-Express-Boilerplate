@@ -1,6 +1,4 @@
 /* eslint-disable prettier/prettier */
-const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
 const crypto = require('crypto');
 const sendMail = require('../utils/email');
 const User = require('../models/userModel');
@@ -16,100 +14,41 @@ exports.googleLogin = async (req, res, next) => {
     setAuthCookies(res, req.user);
     res.status(200).json({
         status: true,
-        user
+        message: 'You logged into your Google profile successfully.',
+        data: user
     });
 }
 
 exports.signup = async (req, res, next) => {
-
-    if (req.body.password !== req.body.passwordConfirm) {
-        return next(new AppError('Password and Confirm Password do not match.', 400));
-    }
-    const newUser = await User.create({
-        method: 'local',
-        'local.name': req.body.name,
-        'local.email': req.body.email,
-        role: req.body.role,
-        'local.password': req.body.password,
-        'local.passwordConfirm': req.body.passwordConfirm,
-    });
-
+    const user = req.user;
     // Create token with user id as the payload
-    setAuthCookies(res, newUser);
+    setAuthCookies(res, user);
 
     res.status(201).json({
         status: true,
-        data: {
-            user: {
-                name,
-                email,
-                _id,
-            },
-        },
+        message: 'Your signed up successfully.',
+        data: user
     });
 };
 
 exports.tokenRefresh = async (req, res, next) => {
-    // check for a token
-    let refreshToken;
-    const { authorization } = req.headers;
+    const user = req.user;
 
-    if (authorization && authorization.startsWith('Bearer')) {
-        // eslint-disable-next-line prefer-destructuring
-        refreshToken = authorization.split(' ')[1];
-    } else if (req.cookies.refreshTokenSignature && req.cookies.refreshTokenPayload) {
-        refreshToken = `${req.cookies.refreshTokenPayload}.${req.cookies.refreshTokenSignature}`;
-    }
-
-    if (!refreshToken) {
-        return next(new AppError('No refresh token found', 401));
-    }
-
-    // verify the token
-    const decoded = await promisify(jwt.verify)(
-        refreshToken,
-        process.env.REFRESHTOKENSECRET
-    );
-        console.log(decoded)
-    // Check if user exists
-    const loggedInUser = await User.findById(decoded._id);
-    if (!loggedInUser) {
-        return next(
-            new AppError('User for this token nolonger exists, please register', 401)
-        );
-    }
-
-    if (loggedInUser.method === 'local') {
-        // Check if the user changed his password.
-        if (loggedInUser.changedPasswordAfter(decoded.iat)) {
-            return next(new AppError('Password has changed, please log in again', 401));
-        }
-    }
-
-    // create new tokens
     setAuthCookies(res, loggedInUser);
-
-    // return tokens
     res.status(200).json({
-        status: true
+        status: true,
+        message: 'Token refreshed successfully.'
     });
 };
 
 exports.login = async (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email || !password)
-        return next(new AppError('Please enter a username and password', 400));
-
-    const user = await User.findOne({ 'local.email': email }).select('+local.password');
-
-    if (!user || !(await user.correctPassword(password, user.local.password)))
-        return next(new AppError('Incorrect username or password', 401));
+    const user = req.user;
 
     setAuthCookies(res, user);
-
     res.status(200).json({
         status: true,
-        message: "Loggin successful!"
+        message: "You logged into your profile successfully!",
+        data: user
     });
 };
 
@@ -127,7 +66,7 @@ exports.logout = async (req, res, next) => {
 
     res.status(200).json({
         status: true,
-        message: "Logout successful!"
+        message: "You logged out successfully!"
     });
 };
 
