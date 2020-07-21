@@ -3,7 +3,12 @@ export default function ({ app, store, redirect, route, next }) {
     store.dispatch('loggedOut');
   }
 
-  if (route.path !== '/login' && route.path !== '/signup') {
+  if (
+    route.path !== '/login' &&
+    route.path !== '/signup' &&
+    route.path !== '/resetPassword' &&
+    route.path !== '/forgotPwd'
+  ) {
     if (!store.state.auth.loggedIn || store.state.auth.user === null) {
       return redirect('/login');
     }

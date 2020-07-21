@@ -69,7 +69,7 @@ exports.logout = async (req, res, next) => {
 };
 
 exports.forgotPassword = async (req, res, next) => {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ 'local.email': req.body.email });
     if (!user) {
         return next(
             new AppError('A user with this email address does not exist', 401)
@@ -79,15 +79,13 @@ exports.forgotPassword = async (req, res, next) => {
     const resetToken = user.createPasswordResettoken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${req.protocol}://${req.get(
-        'host'
-    )}/auth/resetPassword/${resetToken}`;
+    const resetUrl = `${req.protocol}://${process.env.CLIENTURL}/resetPassword/${resetToken}`;
 
     const message = `Forgot your password? Token ${resetUrl}`;
 
     try {
         await sendMail({
-            email: user.email,
+            email: user.local.email,
             subject: 'Reset password',
             message,
         });
@@ -100,7 +98,7 @@ exports.forgotPassword = async (req, res, next) => {
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
 
-        return next(new AppError('Internal Server error', 500));
+        return next(new AppError('There was an error trying to send the email for password reset!', 500));
     }
 };
 
@@ -111,8 +109,8 @@ exports.resetPassword = async (req, res, next) => {
         .digest('hex');
 
     const user = await User.findOne({
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() },
+        'local.passwordResetToken': hashedToken,
+        'local.passwordResetExpires': { $gt: Date.now() },
     });
 
     if (!user) {

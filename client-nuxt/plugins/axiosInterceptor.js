@@ -5,7 +5,11 @@ export default function ({ $axios, redirect, store }) {
     const originalRequest = config;
     if (
       !config.url.includes('/login') &&
-      !config.url.includes('/auth/tokenRefresh')
+      !config.url.includes(
+        '/tokenRefresh',
+      ) /* &&
+      !config.url.includes('/resetPassword') &&
+      !config.url.includes('/forgotPwd') */
     ) {
       if (response.status === 401 && response.data.message === 'jwt expired') {
         if (!isAlreadyFetchingAccessToken) {
