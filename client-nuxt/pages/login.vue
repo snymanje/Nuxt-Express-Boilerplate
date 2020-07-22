@@ -71,10 +71,10 @@
               >
                 Sign In
               </button>
-              <a
+              <nuxt-link
+                to="/forgotPassword"
                 class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800 mt-4"
-                href="#"
-                >Forgot Password?</a
+                >Forgot Password?</nuxt-link
               >
             </div>
           </form>
@@ -108,7 +108,7 @@ export default {
     return {
       login: {
         email: 'jean.snyman6@gmail.com',
-        password: 'Melanie143',
+        password: '',
       },
     };
   },

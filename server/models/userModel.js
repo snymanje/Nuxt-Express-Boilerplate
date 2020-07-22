@@ -126,10 +126,6 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 userSchema.methods.createPasswordResettoken = function () {
-  try {
-    if (this.method !== "local") {
-      next()
-    }
     const resetToken = crypto.randomBytes(32).toString('hex');
     this.local.passwordResetToken = crypto
       .createHash('sha256')
@@ -139,10 +135,6 @@ userSchema.methods.createPasswordResettoken = function () {
     this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
-  }
-  catch (error) {
-    next(error)
-  }
 };
 
 // Model names always start with capital letter

@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-const crypto = require('crypto');
 const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
@@ -69,19 +68,17 @@ exports.logout = async (req, res, next) => {
 };
 
 exports.forgotPassword = async (req, res, next) => {
-    const user = await User.findOne({ 'local.email': req.body.email });
-    if (!user) {
-        return next(
-            new AppError('A user with this email address does not exist', 401)
-        );
-    }
-
-    const resetToken = user.createPasswordResettoken();
-    await user.save({ validateBeforeSave: false });
+    const { user, resetToken } = req;
 
     const resetUrl = `${req.protocol}://${process.env.CLIENTURL}/resetPassword/${resetToken}`;
 
-    const message = `Forgot your password? Token ${resetUrl}`;
+    const message = `<p>
+      Forgot your password? Token
+      <a
+        href="${resetUrl}"
+        target="_blank"
+      >Reset Password</a>
+    </p>`;
 
     try {
         await sendMail({
@@ -103,36 +100,11 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-    const hashedToken = crypto
-        .createHash('sha256')
-        .update(req.params.token)
-        .digest('hex');
-
-    const user = await User.findOne({
-        'local.passwordResetToken': hashedToken,
-        'local.passwordResetExpires': { $gt: Date.now() },
-    });
-
-    if (!user) {
-        return next(
-            new AppError(
-                'The user for this token does not exist or this token has expired',
-                400
-            )
-        );
-    }
-
-    user.password = req.body.password;
-    user.passwordConfirm = req.body.passwordConfirm;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
-
-    const token = generateToken(user._id);
-
+    const user = req.user;
+    setAuthCookies(res, user);
     res.status(200).json({
         status: true,
-        token,
+        message: "Password reset successfully!"
     });
 };
 

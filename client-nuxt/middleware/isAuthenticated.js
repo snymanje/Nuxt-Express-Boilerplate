@@ -6,8 +6,8 @@ export default function ({ app, store, redirect, route, next }) {
   if (
     route.path !== '/login' &&
     route.path !== '/signup' &&
-    route.path !== '/resetPassword' &&
-    route.path !== '/forgotPwd'
+    !route.path.includes('/resetPassword') &&
+    route.path !== '/forgotPassword'
   ) {
     if (!store.state.auth.loggedIn || store.state.auth.user === null) {
       return redirect('/login');
