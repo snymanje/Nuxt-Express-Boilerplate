@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-wrap h-screen"
+    class="flex flex-wrap h-screen bg-white"
     style="font-family: 'Open Sans', sans-serif;"
   >
     <div class="w-full md:w-1/2">
