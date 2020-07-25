@@ -22,12 +22,6 @@
           class="mr-5 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
           >Login</nuxt-link
         >
-        <a
-          v-if="isLoggedIn"
-          class="mr-5 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
-          @click="logout"
-          >Logout</a
-        >
         <nuxt-link
           to="/profile"
           class="mr-5 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
@@ -38,6 +32,12 @@
           to="/settings"
           class="mr-5 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
           >Settings</nuxt-link
+        >
+        <a
+          v-if="isLoggedIn"
+          class="mr-5 text-blue-500 hover:text-blue-800 font-semibold cursor-pointer"
+          @click="logout"
+          >Logout</a
         >
       </nav>
     </div>

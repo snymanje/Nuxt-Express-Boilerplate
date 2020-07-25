@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
         audience: CLIENT_ID,
     });
 
-    const { sub, email } = ticket.getPayload();
+    const { sub, name, email, picture } = ticket.getPayload();
 
     // check if the current user exists in the DB
     const existingUser = await User.findOne({ 'google.id': sub });
@@ -30,6 +30,8 @@ module.exports = async (req, res, next) => {
         method: 'google',
         google: {
             id: sub,
+            name: name,
+            photo: picture,
             email: email
         }
     });

@@ -109,22 +109,21 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.updatePassword = async (req, res, next) => {
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.body.id).select('+local.password');
     if (!user ||
-        !(await user.correctPassword(req.body.passwordCurrent, user.password))
+        !(await user.correctPassword(req.body.passwordCurrent, user.local.password))
     ) {
         return next(new AppError('Passwords are not correct', 403));
     }
-
-    user.password = req.body.password;
-    user.passwordConfirm = req.body.passwordConfirm;
+    user.local.password = req.body.password;
+    user.local.passwordConfirm = req.body.passwordConfirm;
 
     await user.save();
 
-    const token = generateToken(user._id);
+    setAuthCookies(res, user);
 
     res.status(200).json({
         status: true,
-        token,
+        message: 'Password updated successfully!',
     });
 };

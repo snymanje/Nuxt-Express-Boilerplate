@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
     id: {
       type: String
     },
+    name: {
+      type: String
+    },
+    photo: String,
     email: {
       type: String,
       lowercase: true,
@@ -102,6 +106,7 @@ userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
+  console.log(candidatePassword, userPassword)
   return bcrypt.compare(candidatePassword, userPassword);
 };
 
