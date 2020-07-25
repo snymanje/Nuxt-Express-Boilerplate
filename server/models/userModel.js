@@ -106,8 +106,12 @@ userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
-  console.log(candidatePassword, userPassword)
-  return bcrypt.compare(candidatePassword, userPassword);
+  try {
+    return bcrypt.compare(candidatePassword, userPassword);
+  }
+  catch(err) {
+    next(err);
+  }
 };
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
@@ -131,6 +135,7 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 };
 
 userSchema.methods.createPasswordResettoken = function () {
+  try {
     const resetToken = crypto.randomBytes(32).toString('hex');
     this.local.passwordResetToken = crypto
       .createHash('sha256')
@@ -140,6 +145,10 @@ userSchema.methods.createPasswordResettoken = function () {
     this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
+  }
+  catch(err) {
+    next(err);
+  }
 };
 
 // Model names always start with capital letter

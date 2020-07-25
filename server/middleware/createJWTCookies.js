@@ -1,9 +1,10 @@
 const {
     generateToken,
     generateRefreshToken,
-} = require('./generateTokens');
+} = require('../utils/generateTokens');
 
-exports.setAuthCookies = (res, user) => {
+module.exports = async (req, res, next) => {
+    const { user } = req;
     const token = generateToken(user);
     const refreshtoken = generateRefreshToken(user);
 
@@ -22,21 +23,5 @@ exports.setAuthCookies = (res, user) => {
         maxAge: process.env.REFRESHCOOKIEEXPIRES,
     });
 
-    return res;
-}
-
-exports.clearAuthCookies = (res) => {
-    res.cookie('token', false, {
-        httpOnly: true,
-        maxAge: 0,
-    });
-    res.cookie('refreshTokenSignature', false, {
-        httpOnly: true,
-        maxAge: 0,
-    });
-    res.cookie('refreshTokenPayload', false, {
-        maxAge: 0,
-    });
-
-    return res;
+    return next();
 }

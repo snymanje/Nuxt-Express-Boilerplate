@@ -38,13 +38,6 @@ module.exports = async (req, res, next) => {
   const arrayToken = token.split('.');
   const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
 
-/*   res.cookie('tokenSignature', tokenSignature, {
-    httpOnly: true,
-  });
-  res.cookie('tokenPayload', `${tokenHeader}.${tokenPayload}`, {
-    maxAge: process.env.COOKIEEXPIRES,
-  }); */
-
   // Grant access to protected route
   req.user = loggedInUser;
   next();

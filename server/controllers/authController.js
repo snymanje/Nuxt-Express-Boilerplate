@@ -2,13 +2,9 @@
 const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-const { generateToken
-} = require('../utils/generateTokens');
-const { setAuthCookies, clearAuthCookies } = require('../utils/setCookies')
 
 exports.googleLogin = async (req, res, next) => {
     const { user } = req.user;
-    setAuthCookies(res, req.user);
     res.status(200).json({
         status: true,
         message: 'You logged into your Google profile successfully.',
@@ -18,9 +14,6 @@ exports.googleLogin = async (req, res, next) => {
 
 exports.signup = async (req, res, next) => {
     const user = req.user;
-    // Create token with user id as the payload
-    setAuthCookies(res, user);
-
     res.status(201).json({
         status: true,
         message: 'Your signed up successfully.',
@@ -29,9 +22,6 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.tokenRefresh = async (req, res, next) => {
-    const user = req.user;
-
-    setAuthCookies(res, user);
     res.status(200).json({
         status: true,
         message: 'Token refreshed successfully.'
@@ -39,9 +29,7 @@ exports.tokenRefresh = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-    const user = req.user;
-
-    setAuthCookies(res, user);
+    const { user } = req;
     res.status(200).json({
         status: true,
         message: "You logged into your profile successfully!",
@@ -58,8 +46,6 @@ exports.logout = async (req, res, next) => {
 
     if (!user)
         return next(new AppError('User not found', 400));
-
-    clearAuthCookies(res);
 
     res.status(200).json({
         status: true,
@@ -100,8 +86,6 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-    const user = req.user;
-    setAuthCookies(res, user);
     res.status(200).json({
         status: true,
         message: "Password reset successfully!"
@@ -109,19 +93,6 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.updatePassword = async (req, res, next) => {
-    const user = await User.findById(req.body.id).select('+local.password');
-    if (!user ||
-        !(await user.correctPassword(req.body.passwordCurrent, user.local.password))
-    ) {
-        return next(new AppError('Passwords are not correct', 403));
-    }
-    user.local.password = req.body.password;
-    user.local.passwordConfirm = req.body.passwordConfirm;
-
-    await user.save();
-
-    setAuthCookies(res, user);
-
     res.status(200).json({
         status: true,
         message: 'Password updated successfully!',

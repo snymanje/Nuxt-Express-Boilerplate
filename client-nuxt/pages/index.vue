@@ -32,6 +32,7 @@
         </p>
         <ul>
           <li>> Unit Tests</li>
+          <li>> Switch to TypeScript</li>
           <li>> Login with Github</li>
           <li>> Login with Facebook</li>
           <li>> Login with Apple</li>

@@ -11,6 +11,7 @@ module.exports = async (req, res, next) => {
     if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
+    console.log(user)
     req.user = user;
     return next();
 }
