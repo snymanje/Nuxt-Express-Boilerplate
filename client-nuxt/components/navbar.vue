@@ -52,7 +52,7 @@ export default {
       return this.auth().loggedIn;
     },
     isAdmin() {
-      return this.auth().user.user.role === 'admin';
+      return this.auth().user.user.role === 'admin' || false;
     },
   },
   methods: {
