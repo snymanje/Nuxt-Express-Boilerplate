@@ -14,7 +14,7 @@ exports.googleLogin = async (req, res, next) => {
 
 exports.signup = async (req, res, next) => {
     const { accountActivationToken, user } = req;
-    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateaccount/${accountActivationToken}`;
+    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${accountActivationToken}`;
 
     const message = `<p>
     Thanks for registering, please activate your account to get started. Token
@@ -37,11 +37,18 @@ exports.signup = async (req, res, next) => {
         });
     }
     catch (err) {
-/*         user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined; */
+        /*         user.passwordResetToken = undefined;
+                user.passwordResetExpires = undefined; */
 
         return next(new AppError('There was an error trying to send the email to activate account!', 500));
     }
+};
+
+exports.activateAccount = async (req, res, next) => {
+    res.status(200).json({
+        status: true,
+        message: 'Account activated successfully.'
+    });
 };
 
 exports.tokenRefresh = async (req, res, next) => {
