@@ -74,22 +74,6 @@ exports.signup = async (req, res, next) => {
     }
 };
 
-exports.activateAccount = async (req, res, next) => {
-    const { user } = req;
-    res.status(200).json({
-        status: true,
-        message: "You logged into your profile successfully!",
-        data: user
-    });
-};
-
-exports.tokenRefresh = async (req, res, next) => {
-    res.status(200).json({
-        status: true,
-        message: 'Token refreshed successfully.'
-    });
-};
-
 exports.login = async (req, res, next) => {
     const { user } = req;
     res.status(200).json({
@@ -112,6 +96,22 @@ exports.logout = async (req, res, next) => {
     res.status(200).json({
         status: true,
         message: "You logged out successfully!"
+    });
+};
+
+exports.activateAccount = async (req, res, next) => {
+    const { user } = req;
+    res.status(200).json({
+        status: true,
+        message: "You logged into your profile successfully!",
+        data: user
+    });
+};
+
+exports.tokenRefresh = async (req, res, next) => {
+    res.status(200).json({
+        status: true,
+        message: 'Token refreshed successfully.'
     });
 };
 

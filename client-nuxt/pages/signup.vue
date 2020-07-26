@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex flex-wrap h-screen"
+    class="flex flex-wrap h-screen bg-white"
     style="font-family: 'Open Sans', sans-serif;"
   >
-    <div class="w-1/2">
+    <div class="hidden md:block md:w-1/2">
       <div class="flex items-center justify-center">
         <img
           src="~/assets/images/signup_ml.jpg"
@@ -12,9 +12,9 @@
         />
       </div>
     </div>
-    <div class="w-1/2">
+    <div class="w-full md:w-1/2">
       <div class="flex items-center justify-center h-full">
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md px-4">
           <h1 class="font-bold text-4xl text-center text-black mb-6">
             Sign up for an account
           </h1>
@@ -44,7 +44,7 @@
             </div>
             <div class="flex-1 border border-solid border-gray-400"></div>
           </div>
-          <form class="bg-white rounded pt-6 pb-8 mb-4">
+          <form class="rounded pt-6 pb-8 mb-4">
             <div class="mb-3">
               <label
                 class="block text-gray-700 text-sm font-bold mb-2"
