@@ -134,7 +134,7 @@ export default {
     async googleLogin() {
       try {
         const { wc } = await this.$gAuth.signIn();
-        await this.$axios.$post('/auth/google', {
+        await this.$axios.$post('/auth/googleLogin', {
           access_token: wc.id_token,
         });
         const user = await this.$axios.$get('/user/getCurrentUser');

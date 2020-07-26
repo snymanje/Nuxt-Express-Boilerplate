@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <navbar /> -->
+    <navbar />
     <div class="flex items-center justify-center">
       <h1>{{ message }}</h1>
       <nuxt-link

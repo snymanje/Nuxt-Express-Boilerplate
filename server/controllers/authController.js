@@ -3,12 +3,42 @@ const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 
+exports.googleSignup = async (req, res, next) => {
+    const { accountActivationToken, user } = req;
+    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${accountActivationToken}`;
+
+    const message = `<p>
+    Thanks for registering, please activate your account to get started. Token
+    <a
+      href="${activateAccountUrl}"
+      target="_blank"
+    >Reset Password</a>
+  </p>`;
+
+    try {
+        await sendMail({
+            email: user.google.email,
+            subject: 'Activate Account',
+            message,
+        });
+
+        res.status(201).json({
+            status: true,
+            message: 'Email sent for account activation',
+        });
+    }
+    catch (err) {
+        /*         user.passwordResetToken = undefined;
+                user.passwordResetExpires = undefined; */
+
+        return next(new AppError('There was an error trying to send the email to activate account!', 500));
+    }
+}
+
 exports.googleLogin = async (req, res, next) => {
-    const { user } = req.user;
     res.status(200).json({
         status: true,
-        message: 'You logged into your Google profile successfully.',
-        data: user
+        message: 'Account activated successfully.'
     });
 }
 
@@ -45,9 +75,11 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.activateAccount = async (req, res, next) => {
+    const { user } = req;
     res.status(200).json({
         status: true,
-        message: 'Account activated successfully.'
+        message: "You logged into your profile successfully!",
+        data: user
     });
 };
 

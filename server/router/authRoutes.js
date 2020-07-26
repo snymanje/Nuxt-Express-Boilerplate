@@ -2,6 +2,7 @@ const router = require('express').Router();
 const authChecker = require('../middleware/authChecker');
 const localAuth = require('../middleware/authStrategies/localAuth');
 const googleAuth = require('../middleware/authStrategies/googleAuth');
+const googleSignup = require('../middleware/authStrategies/googleSignup');
 const localSignup = require('../middleware/authStrategies/localSignup');
 const refreshTokenAuth = require('../middleware/refreshTokenAuth');
 const resetPassword = require('../middleware/resetPassword');
@@ -26,6 +27,7 @@ router.post('/forgotPassword', forgotPasswordToken, authController.forgotPasswor
 router.patch('/resetPassword/:token', resetPassword, createAuthJWTCookies, authController.resetPassword);
 router.patch('/updateMyPassword', authChecker, updatePassword, createAuthJWTCookies, authController.updatePassword);
 
-router.post('/google', googleAuth, createAuthJWTCookies, authController.googleLogin);
+router.post('/googleSignup', googleSignup, authController.googleSignup);
+router.post('/googleLogin', googleAuth, createAuthJWTCookies, authController.googleLogin);
 
 module.exports = router;

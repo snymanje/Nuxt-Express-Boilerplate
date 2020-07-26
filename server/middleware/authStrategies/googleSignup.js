@@ -21,13 +21,28 @@ module.exports = async (req, res, next) => {
     // check if the current user exists in the DB
     const existingUser = await User.findOne({ 'google.id': sub });
 
-    if (!existingUser) {
-        return next(new AppError('You have not registerd yet, please go to signup.', 401));
-    }
-
-    if (existingUser && !existingUser.active)
+    if(existingUser && !existingUser.active)
         return next(new AppError('You already have an account that is not activated yet', 403));
 
-    req.user = existingUser;
+    if (existingUser && existingUser.active) {
+        return next(new AppError('You already already signed up, go to login', 403));
+    }
+
+    // Id user does not exist creat a new one`);
+    const newUser = await User.create({
+        method: 'google',
+        google: {
+            id: sub,
+            name: name,
+            photo: picture,
+            email: email
+        }
+    });
+
+    const accountActivationToken = newUser.createAccountActivationToken();
+    await newUser.save({ validateBeforeSave: false });
+
+    req.accountActivationToken = accountActivationToken;
+    req.user = newUser;
     return next();
 };
