@@ -11,6 +11,9 @@ module.exports = async (req, res, next) => {
     if (!user || !(await user.correctPassword(password, user.local.password)))
         return next(new AppError('Incorrect username or password', 401));
 
+    if(!user.active)
+        return next(new AppError('You have not activated your account yet', 403));
+
     console.log(user)
     req.user = user;
     return next();

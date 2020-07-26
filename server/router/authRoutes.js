@@ -12,7 +12,7 @@ const googleAuth = require('../middleware/authStrategies/googleAuth');
 
 const authController = require('../controllers/authController');
 
-router.post('/signup', localSignup, createAuthJWTCookies, authController.signup);
+router.post('/signup', localSignup, authController.signup);
 router.post('/login', localAuth, createAuthJWTCookies, authController.login);
 router.post('/logout', removeCookies, authController.logout);
 

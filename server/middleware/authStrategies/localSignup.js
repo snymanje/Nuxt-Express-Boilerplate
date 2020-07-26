@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
     if (req.body.password !== req.body.passwordConfirm) {
         return next(new AppError('Password and Confirm Password do not match.', 400));
     }
-    const newUser = await User.create({
+    const user = await User.create({
         method: 'local',
         'local.name': req.body.name,
         'local.email': req.body.email,
@@ -15,6 +15,10 @@ module.exports = async (req, res, next) => {
         'local.passwordConfirm': req.body.passwordConfirm,
     });
 
-    req.user = newUser;
+    const accountActivationToken = user.createAccountActivationToken();
+    await user.save({ validateBeforeSave: false });
+
+    req.accountActivationToken = accountActivationToken;
+    req.user = user;
     return next();
 }

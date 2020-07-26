@@ -14,6 +14,13 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
+  active: {
+    type: Boolean,
+    default: false
+  },
+  accountActivationToken: {
+    type: String
+  },
   local: {
     name: {
       type: String,
@@ -145,6 +152,23 @@ userSchema.methods.createPasswordResettoken = function () {
     this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
+  }
+  catch(err) {
+    next(err);
+  }
+};
+
+userSchema.methods.createAccountActivationToken = function () {
+  try {
+    const activationToken = crypto.randomBytes(32).toString('hex');
+    this.accountActivationToken = crypto
+      .createHash('sha256')
+      .update(activationToken)
+      .digest('hex');
+
+    /* this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000; */
+
+    return activationToken;
   }
   catch(err) {
     next(err);
