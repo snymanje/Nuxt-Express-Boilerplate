@@ -1,14 +1,14 @@
 const router = require('express').Router();
 const authChecker = require('../middleware/authChecker');
-const localAuth = require('../middleware/localAuth');
-const localSignup = require('../middleware/localSignup');
+const localAuth = require('../middleware/authStrategies/localAuth');
+const localSignup = require('../middleware/authStrategies/localSignup');
 const refreshTokenAuth = require('../middleware/refreshTokenAuth');
 const resetPassword = require('../middleware/resetPassword');
 const updatePassword = require('../middleware/updatePassword');
 const forgotPasswordToken = require('../middleware/forgotPasswordToken');
 const createAuthJWTCookies = require('../middleware/createJWTCookies');
 const removeCookies = require('../middleware/removeCookies');
-const googleAuth = require('../middleware/googleAuth');
+const googleAuth = require('../middleware/authStrategies/googleAuth');
 
 const authController = require('../controllers/authController');
 

@@ -1,5 +1,5 @@
-const AppError = require('../utils/appError');
-const User = require('../models/userModel');
+const AppError = require('../../utils/appError');
+const User = require('../../models/userModel');
 const { OAuth2Client } = require('google-auth-library');
 
 module.exports = async (req, res, next) => {
