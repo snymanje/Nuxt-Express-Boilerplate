@@ -10,24 +10,53 @@ const createAuthJWTCookies = require('../middleware/createJWTCookies');
 const removeCookies = require('../middleware/removeCookies');
 const activation = require('../middleware/activateAccount');
 
-const { validateSignIn } = require('../middleware/requestValidation');
-
+const { authenticateSchema } = require('../utils/validationSchemas');
+const { validate } = require('../middleware/validateRequest');
 
 const authController = require('../controllers/authController');
 
 router.post('/signup', authController.signup);
-router.post('/login', validateSignIn, authController.login);
+router.post('/login', validate(authenticateSchema), authController.login);
 router.post('/logout', removeCookies, authController.logout);
-router.post('/activate/:activationToken', activation, authController.activateAccount);
+router.post(
+  '/activate/:activationToken',
+  activation,
+  authController.activateAccount
+);
 
 // Review refresh tokens later
-router.post('/tokenRefresh', refreshTokenAuth, createAuthJWTCookies, authController.tokenRefresh);
+router.post(
+  '/tokenRefresh',
+  refreshTokenAuth,
+  createAuthJWTCookies,
+  authController.tokenRefresh
+);
 
-router.post('/forgotPassword', forgotPasswordToken, authController.forgotPassword);
-router.patch('/resetPassword/:token', resetPassword, createAuthJWTCookies, authController.resetPassword);
-router.patch('/updateMyPassword', authChecker, updatePassword, createAuthJWTCookies, authController.updatePassword);
+router.post(
+  '/forgotPassword',
+  forgotPasswordToken,
+  authController.forgotPassword
+);
+router.patch(
+  '/resetPassword/:token',
+  resetPassword,
+  createAuthJWTCookies,
+  authController.resetPassword
+);
+router.patch(
+  '/updateMyPassword',
+  authChecker,
+  updatePassword,
+  createAuthJWTCookies,
+  authController.updatePassword
+);
 
 router.post('/googleSignup', googleSignup, authController.googleSignup);
-router.post('/googleLogin', googleAuth, createAuthJWTCookies, authController.googleLogin);
+router.post(
+  '/googleLogin',
+  googleAuth,
+  createAuthJWTCookies,
+  authController.googleLogin
+);
 
 module.exports = router;
