@@ -2,6 +2,24 @@
 const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
+const authService = require('../services/authService');
+
+const setTokenCookies = (res, tokens) => {
+    const refreshtokenArray = tokens.refresh_token.split('.');
+    const [refreshTokenHeader, refreshTokenPayload, refreshTokenSignature] = refreshtokenArray;
+
+    res.cookie('token', tokens.access_token, {
+        httpOnly: true,
+        //maxAge: process.env.COOKIEEXPIRES,
+    });
+    res.cookie('refreshTokenSignature', refreshTokenSignature, {
+        httpOnly: true,
+        //maxAge: process.env.REFRESHCOOKIEEXPIRES,
+    });
+    res.cookie('refreshTokenPayload', `${refreshTokenHeader}.${refreshTokenPayload}`, {
+        maxAge: process.env.REFRESHCOOKIEEXPIRES,
+    });
+}
 
 exports.googleSignup = async (req, res, next) => {
     const { accountActivationToken, user } = req;
@@ -43,8 +61,10 @@ exports.googleLogin = async (req, res, next) => {
 }
 
 exports.signup = async (req, res, next) => {
-    const { accountActivationToken, user } = req;
-    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${accountActivationToken}`;
+
+    const user = await authService.signup(req.body);
+
+    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${user.accountActivationToken}`;
 
     const message = `<p>
     Thanks for registering, please activate your account to get started. Token
@@ -75,7 +95,10 @@ exports.signup = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-    const { user } = req;
+    const user = await authService.localLogin(req.body);
+    const tokens = await authService.generateTokens(user)
+    setTokenCookies(res, tokens);
+
     res.status(200).json({
         status: true,
         message: "You logged into your profile successfully!",

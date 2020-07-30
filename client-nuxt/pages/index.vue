@@ -19,6 +19,7 @@
           <li>> Nuxtjs Frontend</li>
           <li>> Login with google</li>
           <li>> Login with username and password</li>
+          <li>> Account activation via email</li>
           <li>> Storing JWT in cookies</li>
           <li>
             > Refresh tokens with automatic token refresh via axios interceptors
@@ -32,11 +33,19 @@
         </p>
         <ul>
           <li>> Unit Tests</li>
+          <li>> Validate request data validation using Joi</li>
+          <li>> Logging: using winston and morgan</li>
+          <li>> Token blacklisting</li>
+          <li>> API documentation using postman and docgen</li>
+          <li>> Automated code quality via codacy</li>
+          <li>> Automated code quality via codacy</li>
+          <li>> Code coverage with coveralls</li>
           <li>> Switch to TypeScript</li>
           <li>> Login with Github</li>
           <li>> Login with Facebook</li>
           <li>> Login with Apple</li>
           <li>> Login with Microsoft</li>
+          <li>> Login with LinkedIn</li>
           <li>> Better UI</li>
         </ul>
       </div>
