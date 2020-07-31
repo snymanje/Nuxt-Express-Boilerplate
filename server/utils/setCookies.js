@@ -23,6 +23,13 @@ const setAuthCookies = (res, tokens) => {
   );
 };
 
+const updateTokenCookie = (res, tokens) => {
+  res.cookie('token', tokens.access_token, {
+    httpOnly: true,
+    //maxAge: process.env.COOKIEEXPIRES,
+  });
+};
+
 const clearAuthCookies = (res) => {
   res.cookie('token', false, {
     httpOnly: true,
@@ -39,5 +46,6 @@ const clearAuthCookies = (res) => {
 
 module.exports = {
   setAuthCookies,
+  updateTokenCookie,
   clearAuthCookies,
 };

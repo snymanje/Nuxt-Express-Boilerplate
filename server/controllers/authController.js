@@ -1,7 +1,11 @@
 /* eslint-disable prettier/prettier */
 const AppError = require('../utils/appError');
 const authService = require('../services/authService');
-const { setAuthCookies, clearAuthCookies } = require('../utils/setCookies');
+const {
+  setAuthCookies,
+  updateTokenCookie,
+  clearAuthCookies,
+} = require('../utils/setCookies');
 
 const sendResponse = async (res, statusCode, status, message, data) => {
   await res.status(statusCode).json({
@@ -21,13 +25,6 @@ exports.googleSignUp = async (req, res, next) => {
   await sendResponse(res, 201, true, 'Activation email sent.', null);
 };
 
-exports.googleLogin = async (req, res, next) => {
-  const user = await authService.googleSignIn(req.body);
-  const tokens = await authService.generateTokens(user);
-  setAuthCookies(res, tokens);
-  await sendResponse(res, 200, true, 'Logged in successfully!', user);
-};
-
 exports.signup = async (req, res, next) => {
   const { user, activationToken } = await authService.signup(req.body);
   await authService.sendAccountActivationEmail(
@@ -36,6 +33,13 @@ exports.signup = async (req, res, next) => {
     req.protocol
   );
   await sendResponse(res, 201, true, 'Activation email sent.', null);
+};
+
+exports.googleLogin = async (req, res, next) => {
+  const user = await authService.googleSignIn(req.body);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Logged in successfully!', user);
 };
 
 exports.login = async (req, res, next) => {
@@ -76,8 +80,8 @@ exports.tokenRefresh = async (req, res, next) => {
   }
 
   const user = await authService.refreshToken(refreshToken);
-  const tokens = await authService.generateTokens(user);
-  setAuthCookies(res, tokens);
+  const token = await authService.generateAccessToken(user);
+  updateTokenCookie(res, token);
   await sendResponse(res, 200, true, 'Reissued access token.', user);
 };
 

@@ -174,6 +174,17 @@ const generateTokens = async (user) => {
   };
 };
 
+const generateAccessToken = async (user) => {
+  const { _id } = user;
+  const access_token = await jwt.sign({ _id }, process.env.TOKENSECRET, {
+    expiresIn: process.env.TOKENEXPIRES,
+  });
+
+  return {
+    access_token,
+  };
+};
+
 const refreshToken = async (refreshToken) => {
   // verify the token
   const decoded = await promisify(jwt.verify)(
@@ -263,7 +274,7 @@ const updatePassword = async (body) => {
     !user ||
     !(await user.correctPassword(passwordCurrent, user.local.password))
   ) {
-    return next(new AppError('Passwords are not correct', 403));
+    throw new AppError('Passwords are not correct', 403);
   }
   user.local.password = password;
   user.local.passwordConfirm = passwordConfirm;
@@ -349,6 +360,7 @@ module.exports = {
   signup,
   localLogin,
   generateTokens,
+  generateAccessToken,
   logout,
   sendAccountActivationEmail,
   googleSignUp,

@@ -5,11 +5,7 @@ export default function ({ $axios, redirect, store }) {
     const originalRequest = config;
     if (
       !config.url.includes('/login') &&
-      !config.url.includes(
-        '/tokenRefresh',
-      ) /* &&
-      !config.url.includes('/resetPassword') &&
-      !config.url.includes('/forgotPwd') */
+      !config.url.includes('/tokenRefresh')
     ) {
       if (response.status === 401 && response.data.message === 'jwt expired') {
         if (!isAlreadyFetchingAccessToken) {
@@ -18,7 +14,6 @@ export default function ({ $axios, redirect, store }) {
             await $axios.$post('/auth/tokenRefresh');
             return $axios(originalRequest);
           } catch (err) {
-            console.log(err.response);
             await store.dispatch('loggedOut');
             redirect('/login');
           }

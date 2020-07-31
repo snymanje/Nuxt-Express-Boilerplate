@@ -18,8 +18,9 @@ export default {
       try {
         const result = await this.$axios.$get('/profile/');
         this.message = result.message;
+        console.log(result);
       } catch (error) {
-        // console.log(error);
+        console.log(error.response);
       }
     },
   },
