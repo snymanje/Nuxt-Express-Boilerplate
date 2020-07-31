@@ -1,185 +1,102 @@
 /* eslint-disable prettier/prettier */
-const sendMail = require('../utils/email');
-const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const authService = require('../services/authService');
+const { setAuthCookies, clearAuthCookies } = require('../utils/setCookies');
 
-const setTokenCookies = (res, tokens) => {
-    const refreshtokenArray = tokens.refresh_token.split('.');
-    const [refreshTokenHeader, refreshTokenPayload, refreshTokenSignature] = refreshtokenArray;
+const sendResponse = async (res, statusCode, status, message, data) => {
+  await res.status(statusCode).json({
+    status,
+    message,
+    data,
+  });
+};
 
-    res.cookie('token', tokens.access_token, {
-        httpOnly: true,
-        //maxAge: process.env.COOKIEEXPIRES,
-    });
-    res.cookie('refreshTokenSignature', refreshTokenSignature, {
-        httpOnly: true,
-        //maxAge: process.env.REFRESHCOOKIEEXPIRES,
-    });
-    res.cookie('refreshTokenPayload', `${refreshTokenHeader}.${refreshTokenPayload}`, {
-        maxAge: process.env.REFRESHCOOKIEEXPIRES,
-    });
-}
-
-exports.googleSignup = async (req, res, next) => {
-    const { accountActivationToken, user } = req;
-    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${accountActivationToken}`;
-
-    const message = `<p>
-    Thanks for registering, please activate your account to get started. Token
-    <a
-      href="${activateAccountUrl}"
-      target="_blank"
-    >Reset Password</a>
-  </p>`;
-
-    try {
-        await sendMail({
-            email: user.google.email,
-            subject: 'Activate Account',
-            message,
-        });
-
-        res.status(201).json({
-            status: true,
-            message: 'Email sent for account activation',
-        });
-    }
-    catch (err) {
-        /*         user.passwordResetToken = undefined;
-                user.passwordResetExpires = undefined; */
-
-        return next(new AppError('There was an error trying to send the email to activate account!', 500));
-    }
-}
+exports.googleSignUp = async (req, res, next) => {
+  const { user, activationToken } = await authService.googleSignup(req.body);
+  await authService.sendAccountActivationEmail(
+    user,
+    activationToken,
+    req.protocol
+  );
+  await sendResponse(res, 201, true, 'Activation email sent.', null);
+};
 
 exports.googleLogin = async (req, res, next) => {
-    res.status(200).json({
-        status: true,
-        message: 'Account activated successfully.'
-    });
-}
+  const user = await authService.googleSignIn(req.body);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Logged in successfully!', user);
+};
 
 exports.signup = async (req, res, next) => {
-
-    const user = await authService.signup(req.body);
-
-    const activateAccountUrl = `${req.protocol}://${process.env.CLIENTURL}/activateAccount/${user.accountActivationToken}`;
-
-    const message = `<p>
-    Thanks for registering, please activate your account to get started. Token
-    <a
-      href="${activateAccountUrl}"
-      target="_blank"
-    >Reset Password</a>
-  </p>`;
-
-    try {
-        await sendMail({
-            email: user.local.email,
-            subject: 'Activate Account',
-            message,
-        });
-
-        res.status(201).json({
-            status: true,
-            message: 'Email sent for account activation',
-        });
-    }
-    catch (err) {
-        /*         user.passwordResetToken = undefined;
-                user.passwordResetExpires = undefined; */
-
-        return next(new AppError('There was an error trying to send the email to activate account!', 500));
-    }
+  const { user, activationToken } = await authService.signup(req.body);
+  await authService.sendAccountActivationEmail(
+    user,
+    activationToken,
+    req.protocol
+  );
+  await sendResponse(res, 201, true, 'Activation email sent.', null);
 };
 
 exports.login = async (req, res, next) => {
-    const user = await authService.localLogin(req.body);
-    const tokens = await authService.generateTokens(user)
-    setTokenCookies(res, tokens);
-
-    res.status(200).json({
-        status: true,
-        message: "You logged into your profile successfully!",
-        data: user
-    });
+  const user = await authService.localLogin(req.body);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Logged in successfully!', user);
 };
 
 exports.logout = async (req, res, next) => {
-    const { _id } = req.body;
-    if (!_id)
-        return next(new AppError('No user id provided', 400));
-
-    const user = await User.findOne({ _id });
-
-    if (!user)
-        return next(new AppError('User not found', 400));
-
-    res.status(200).json({
-        status: true,
-        message: "You logged out successfully!"
-    });
+  await authService.logout(req.body);
+  clearAuthCookies(res);
+  await sendResponse(res, 200, true, 'You logged out successfully!', null);
 };
 
 exports.activateAccount = async (req, res, next) => {
-    const { user } = req;
-    res.status(200).json({
-        status: true,
-        message: "You logged into your profile successfully!",
-        data: user
-    });
+  const user = await authService.activateAccount(req.params.activationToken);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Account Activated!', user);
 };
 
 exports.tokenRefresh = async (req, res, next) => {
-    res.status(200).json({
-        status: true,
-        message: 'Token refreshed successfully.'
-    });
+  let refreshToken;
+  const { authorization } = req.headers;
+
+  if (authorization && authorization.startsWith('Bearer')) {
+    refreshToken = authorization.split(' ')[1];
+  } else if (
+    req.cookies.refreshTokenSignature &&
+    req.cookies.refreshTokenPayload
+  ) {
+    refreshToken = `${req.cookies.refreshTokenPayload}.${req.cookies.refreshTokenSignature}`;
+  }
+
+  if (!refreshToken) {
+    return next(new AppError('No refresh token found', 401));
+  }
+
+  const user = await authService.refreshToken(refreshToken);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Reissued access token.', user);
 };
 
 exports.forgotPassword = async (req, res, next) => {
-    const { user, resetToken } = req;
-
-    const resetUrl = `${req.protocol}://${process.env.CLIENTURL}/resetPassword/${resetToken}`;
-
-    const message = `<p>
-      Forgot your password? Token
-      <a
-        href="${resetUrl}"
-        target="_blank"
-      >Reset Password</a>
-    </p>`;
-
-    try {
-        await sendMail({
-            email: user.local.email,
-            subject: 'Reset password',
-            message,
-        });
-
-        res.status(200).json({
-            status: true,
-            message: 'Token send to email',
-        });
-    } catch (error) {
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-
-        return next(new AppError('There was an error trying to send the email for password reset!', 500));
-    }
+  const { user, resetToken } = await authService.createPwdResetToken(req.body);
+  await authService.sendForgotPwdEmail(user, resetToken, req.protocol);
+  await sendResponse(res, 200, true, 'Password Reset email sent!', user);
 };
 
 exports.resetPassword = async (req, res, next) => {
-    res.status(200).json({
-        status: true,
-        message: "Password reset successfully!"
-    });
+  const user = await authService.resetPassword(req.body, req.params.token);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Password reset successful', user);
 };
 
 exports.updatePassword = async (req, res, next) => {
-    res.status(200).json({
-        status: true,
-        message: 'Password updated successfully!',
-    });
+  const user = await authService.updatePassword(req.body);
+  const tokens = await authService.generateTokens(user);
+  setAuthCookies(res, tokens);
+  await sendResponse(res, 200, true, 'Password updated successfully', user);
 };

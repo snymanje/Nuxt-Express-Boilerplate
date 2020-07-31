@@ -21,6 +21,7 @@ export default {
   },
   async created() {
     const token = this.$route.params.id;
+    console.log(token);
     try {
       const result = await this.$axios.$post(`/auth/activate/${token}`);
       console.log(result);

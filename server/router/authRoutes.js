@@ -1,61 +1,36 @@
 const router = require('express').Router();
 const authChecker = require('../middleware/authChecker');
-const googleAuth = require('../middleware/authStrategies/googleAuth');
-const googleSignup = require('../middleware/authStrategies/googleSignup');
-const refreshTokenAuth = require('../middleware/refreshTokenAuth');
-const resetPassword = require('../middleware/resetPassword');
-const updatePassword = require('../middleware/updatePassword');
-const forgotPasswordToken = require('../middleware/forgotPasswordToken');
-const createAuthJWTCookies = require('../middleware/createJWTCookies');
-const removeCookies = require('../middleware/removeCookies');
-const activation = require('../middleware/activateAccount');
 
-const { authenticateSchema } = require('../utils/validationSchemas');
-const { validate } = require('../middleware/validateRequest');
+const {
+  localAuthSchema,
+  logoutSchema,
+  signUpSchema,
+  googleTokenSchema,
+} = require('../utils/validationSchemas');
+const { validateRequest } = require('../middleware/validateRequest');
 
 const authController = require('../controllers/authController');
 
-router.post('/signup', authController.signup);
-router.post('/login', validate(authenticateSchema), authController.login);
-router.post('/logout', removeCookies, authController.logout);
-router.post(
-  '/activate/:activationToken',
-  activation,
-  authController.activateAccount
-);
+router.post('/signup', validateRequest(signUpSchema), authController.signup);
+router.post('/login', validateRequest(localAuthSchema), authController.login);
+router.post('/logout', validateRequest(logoutSchema), authController.logout);
+router.post('/activate/:activationToken', authController.activateAccount);
 
 // Review refresh tokens later
-router.post(
-  '/tokenRefresh',
-  refreshTokenAuth,
-  createAuthJWTCookies,
-  authController.tokenRefresh
-);
+router.post('/tokenRefresh', authController.tokenRefresh);
+
+router.post('/forgotPassword', authController.forgotPassword);
+router.patch('/resetPassword/:token', authController.resetPassword);
+router.patch('/updateMyPassword', authChecker, authController.updatePassword);
 
 router.post(
-  '/forgotPassword',
-  forgotPasswordToken,
-  authController.forgotPassword
+  '/googleSignup',
+  validateRequest(googleTokenSchema),
+  authController.googleSignUp
 );
-router.patch(
-  '/resetPassword/:token',
-  resetPassword,
-  createAuthJWTCookies,
-  authController.resetPassword
-);
-router.patch(
-  '/updateMyPassword',
-  authChecker,
-  updatePassword,
-  createAuthJWTCookies,
-  authController.updatePassword
-);
-
-router.post('/googleSignup', googleSignup, authController.googleSignup);
 router.post(
   '/googleLogin',
-  googleAuth,
-  createAuthJWTCookies,
+  validateRequest(googleTokenSchema),
   authController.googleLogin
 );
 
