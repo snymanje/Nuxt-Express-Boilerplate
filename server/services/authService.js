@@ -16,7 +16,7 @@ const activateAccount = async (activationToken) => {
 
   const user = await User.findOne({
     accountActivationToken: hashedToken,
-    /* 'local.passwordResetExpires': { $gt: Date.now() }, */
+    accountActivationExpires: { $gt: Date.now() },
   });
 
   if (!user) {

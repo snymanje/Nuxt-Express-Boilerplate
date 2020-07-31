@@ -6,6 +6,8 @@ const {
   logoutSchema,
   signUpSchema,
   googleTokenSchema,
+  passwordResetSchema,
+  passwordUpdateSchema,
 } = require('../utils/validationSchemas');
 const { validateRequest } = require('../middleware/validateRequest');
 
@@ -20,8 +22,17 @@ router.post('/activate/:activationToken', authController.activateAccount);
 router.post('/tokenRefresh', authController.tokenRefresh);
 
 router.post('/forgotPassword', authController.forgotPassword);
-router.patch('/resetPassword/:token', authController.resetPassword);
-router.patch('/updateMyPassword', authChecker, authController.updatePassword);
+router.patch(
+  '/resetPassword/:token',
+  validateRequest(passwordResetSchema),
+  authController.resetPassword
+);
+router.patch(
+  '/updateMyPassword',
+  validateRequest(passwordUpdateSchema),
+  authChecker,
+  authController.updatePassword
+);
 
 router.post(
   '/googleSignup',

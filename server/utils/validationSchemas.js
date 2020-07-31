@@ -12,6 +12,18 @@ const localAuthSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const passwordResetSchema = Joi.object({
+  password: Joi.string().min(6).max(25).required().strict(),
+  passwordConfirm: Joi.string().valid(Joi.ref('password')).required().strict(),
+});
+
+const passwordUpdateSchema = Joi.object({
+  id: Joi.string().required(),
+  passwordCurrent: Joi.string().min(6).max(25).required().strict(),
+  password: Joi.string().min(6).max(25).required().strict(),
+  passwordConfirm: Joi.string().valid(Joi.ref('password')).required().strict(),
+});
+
 const googleTokenSchema = Joi.object({
   access_token: Joi.string().required(),
 });
@@ -25,4 +37,6 @@ module.exports = {
   logoutSchema,
   signUpSchema,
   googleTokenSchema,
+  passwordResetSchema,
+  passwordUpdateSchema,
 };

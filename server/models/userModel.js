@@ -16,10 +16,13 @@ const userSchema = new mongoose.Schema({
   },
   active: {
     type: Boolean,
-    default: false
+    default: false,
   },
   accountActivationToken: {
-    type: String
+    type: String,
+  },
+  accountActivationExpires: {
+    type: Date,
   },
   local: {
     name: {
@@ -64,37 +67,36 @@ const userSchema = new mongoose.Schema({
   },
   google: {
     id: {
-      type: String
+      type: String,
     },
     name: {
-      type: String
+      type: String,
     },
     photo: String,
     email: {
       type: String,
       lowercase: true,
-    }
-  }
-
+    },
+  },
 });
 
 userSchema.pre('save', async function (next) {
   try {
-    if (this.method !== "local") {
-      next()
+    if (this.method !== 'local') {
+      next();
     }
     if (!this.isModified('local.password') || this.isNew) return next();
     this.local.passwordChangedAt = Date.now() - 1000;
     next();
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
 userSchema.pre('save', async function (next) {
   try {
-    if (this.method !== "local") {
-      next()
+    if (this.method !== 'local') {
+      next();
     }
     // only runs if password was modified
     if (!this.isModified('local.password')) return next();
@@ -103,9 +105,8 @@ userSchema.pre('save', async function (next) {
     this.local.passwordConfirm = undefined; // We don't want to persist the confirm pass to DB - only used for validation
 
     next();
-  }
-  catch (error) {
-    next(error)
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -115,16 +116,15 @@ userSchema.methods.correctPassword = async function (
 ) {
   try {
     return bcrypt.compare(candidatePassword, userPassword);
-  }
-  catch(err) {
+  } catch (err) {
     next(err);
   }
 };
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   try {
-    if (this.method !== "local") {
-      next()
+    if (this.method !== 'local') {
+      next();
     }
     if (this.local.passwordChangedAt) {
       const changedTimestamp = parseInt(
@@ -135,9 +135,8 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     }
     // Not changed
     return false;
-  }
-  catch (error) {
-    next(error)
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -152,8 +151,7 @@ userSchema.methods.createPasswordResettoken = function () {
     this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
-  }
-  catch(err) {
+  } catch (err) {
     next(err);
   }
 };
@@ -166,11 +164,10 @@ userSchema.methods.createAccountActivationToken = function () {
       .update(activationToken)
       .digest('hex');
 
-    /* this.local.passwordResetExpires = Date.now() + 10 * 60 * 1000; */
+    this.accountActivationExpires = Date.now() + 10 * 60 * 1000;
 
     return activationToken;
-  }
-  catch(err) {
+  } catch (err) {
     next(err);
   }
 };
