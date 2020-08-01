@@ -6,10 +6,10 @@
         <h1 class="font-medium text-3xl">Welcome, {{ getUser }}</h1>
         <p class="my-6">
           This boilerplate is primaraly focused on being a template with
-          authentication ready to go. <br />Authentication is the part of an
-          application that can take a lot of time to get right and no one wants
-          to reimplement authentication and autherization from scratch with
-          every new project.
+          authentication ready to go.
+          <br />Authentication is the part of an application that can take a lot
+          of time to get right and no one wants to reimplement authentication
+          and autherization from scratch with every new project.
         </p>
         <p class="font-medium text-xl mt-4">
           What is included in this boilerplate?
@@ -24,16 +24,14 @@
           <li>
             > Refresh tokens with automatic token refresh via axios interceptors
           </li>
+          <li>> Validate request data validation using Joi</li>
           <li>> Forgot\Reset Password</li>
           <li>> Update Password</li>
           <li>> Route guards</li>
         </ul>
-        <p class="font-medium text-xl mt-4">
-          What must still be included??
-        </p>
+        <p class="font-medium text-xl mt-4">What must still be included??</p>
         <ul>
           <li>> Unit Tests</li>
-          <li>> Validate request data validation using Joi</li>
           <li>> Logging: using winston and morgan</li>
           <li>> Token blacklisting</li>
           <li>> API documentation using postman and docgen</li>

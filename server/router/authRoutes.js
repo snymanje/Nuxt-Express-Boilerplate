@@ -8,7 +8,7 @@ const {
   googleTokenSchema,
   passwordResetSchema,
   passwordUpdateSchema,
-} = require('../utils/validationSchemas');
+} = require('../models/validationSchemas');
 
 const authController = require('../controllers/authController');
 

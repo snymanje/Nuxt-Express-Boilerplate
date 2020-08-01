@@ -15,9 +15,8 @@ exports.validateRequest = (schema) => {
           400
         )
       );
-    } else {
-      req.body = value;
-      next();
     }
+    req.body = value;
+    next();
   };
 };
