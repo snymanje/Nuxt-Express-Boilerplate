@@ -20,7 +20,7 @@ Authentication is the part of an application that can take a lot of time to get 
 * Improving the UI
 * Unit Tests
 * Logging: using winston and morgan
-* Token blacklisting
+* Refresh Token blacklisting
 * API documentation using postman and docgen
 * Automated code quality via codacy
 * Automated code quality via codacy
