@@ -8,8 +8,8 @@ const signUpSchema = Joi.object({
 });
 
 const localAuthSchema = Joi.object({
-  email: Joi.string().required(),
-  password: Joi.string().required(),
+  email: Joi.string().lowercase().email().required(),
+  password: Joi.string().min(6).max(25).required().strict(),
 });
 
 const passwordResetSchema = Joi.object({

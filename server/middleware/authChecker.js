@@ -31,12 +31,14 @@ module.exports = async (req, res, next) => {
   // Check if the user changed his password.
   if (loggedInUser.method === 'local') {
     if (loggedInUser.changedPasswordAfter(decoded.iat)) {
-      return next(new AppError('Password has changed, please log in again', 401));
+      return next(
+        new AppError('Password has changed, please log in again', 401)
+      );
     }
   }
 
-  const arrayToken = token.split('.');
-  const [tokenHeader, tokenPayload, tokenSignature] = arrayToken;
+  /*   const arrayToken = token.split('.');
+  const [tokenHeader, tokenPayload, tokenSignature] = arrayToken; */
 
   // Grant access to protected route
   req.user = loggedInUser;

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const authChecker = require('../middleware/authChecker');
-
+const { validateRequest } = require('../middleware/validateRequest');
 const {
   localAuthSchema,
   logoutSchema,
@@ -9,7 +9,6 @@ const {
   passwordResetSchema,
   passwordUpdateSchema,
 } = require('../utils/validationSchemas');
-const { validateRequest } = require('../middleware/validateRequest');
 
 const authController = require('../controllers/authController');
 
