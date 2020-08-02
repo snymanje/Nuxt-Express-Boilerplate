@@ -4,14 +4,14 @@ const authService = require('../services/authService');
 const {
   setAuthCookies,
   updateTokenCookie,
-  clearAuthCookies,
+  clearAuthCookies
 } = require('../utils/setCookies');
 
 const sendResponse = async (res, statusCode, status, message, data) => {
   await res.status(statusCode).json({
     status,
     message,
-    data,
+    data
   });
 };
 
