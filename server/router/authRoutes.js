@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const authChecker = require('../middleware/authChecker');
-const { validateRequest } = require('../middleware/validateRequest');
+const authenticate = require('../middleware/authenticate');
+const { validate } = require('../middleware/validate');
 const {
   localAuthSchema,
   logoutSchema,
@@ -12,9 +12,9 @@ const {
 
 const authController = require('../controllers/authController');
 
-router.post('/signup', validateRequest(signUpSchema), authController.signup);
-router.post('/login', validateRequest(localAuthSchema), authController.login);
-router.post('/logout', validateRequest(logoutSchema), authController.logout);
+router.post('/signup', validate(signUpSchema), authController.signup);
+router.post('/login', validate(localAuthSchema), authController.login);
+router.post('/logout', validate(logoutSchema), authController.logout);
 router.post('/activate/:activationToken', authController.activateAccount);
 
 // Review refresh tokens later
@@ -23,24 +23,24 @@ router.post('/tokenRefresh', authController.tokenRefresh);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch(
   '/resetPassword/:token',
-  validateRequest(passwordResetSchema),
+  validate(passwordResetSchema),
   authController.resetPassword
 );
 router.patch(
   '/updateMyPassword',
-  validateRequest(passwordUpdateSchema),
-  authChecker,
+  validate(passwordUpdateSchema),
+  authenticate,
   authController.updatePassword
 );
 
 router.post(
   '/googleSignup',
-  validateRequest(googleTokenSchema),
+  validate(googleTokenSchema),
   authController.googleSignUp
 );
 router.post(
   '/googleLogin',
-  validateRequest(googleTokenSchema),
+  validate(googleTokenSchema),
   authController.googleLogin
 );
 

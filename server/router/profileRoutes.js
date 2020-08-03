@@ -1,15 +1,11 @@
 const router = require('express').Router();
-const authChecker = require('../middleware/authChecker');
+const authenticate = require('../middleware/authenticate');
 
 const profileController = require('../controllers/profileController');
-const permissionsChecker = require('../middleware/permissionsChecker');
+const authorize = require('../middleware/authorize');
 
 router
   .route('/')
-  .get(
-    authChecker,
-    permissionsChecker.restrictTo('admin'),
-    profileController.view
-  );
+  .get(authenticate, authorize.restrictTo('admin'), profileController.view);
 
 module.exports = router;

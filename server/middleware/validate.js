@@ -1,6 +1,6 @@
 const AppError = require('../utils/appError');
 
-exports.validateRequest = (schema) => {
+exports.validate = (schema) => {
   return (req, res, next) => {
     const options = {
       abortEarly: false, // include all errors
