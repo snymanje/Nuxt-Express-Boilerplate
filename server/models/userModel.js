@@ -3,82 +3,85 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const userSchema = new mongoose.Schema({
-  method: {
-    type: String,
-    enum: ['local', 'google'],
-    required: [true, 'Authentication method is not specified.'],
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
-  },
-  active: {
-    type: Boolean,
-    default: false,
-  },
-  accountActivationToken: {
-    type: String,
-  },
-  accountActivationExpires: {
-    type: Date,
-  },
-  local: {
-    name: {
+const userSchema = new mongoose.Schema(
+  {
+    method: {
       type: String,
-      //required: [true, 'Your name is required.'],
-      trim: true,
+      enum: ['local', 'google'],
+      required: [true, 'Authentication method is not specified.'],
     },
-    email: {
+    role: {
       type: String,
-      require: [true, 'Please add you email address.'],
-      unique: true,
-      lowercase: true,
-      validate: [validator.isEmail, 'Please provide a valid email'],
+      enum: ['user', 'admin'],
+      default: 'user',
     },
-    photo: String,
-    password: {
-      type: String,
-      //required: [true, 'Please provide a password'],
-      minlength: 8,
-      select: false, // Will not be shown in queries
+    active: {
+      type: Boolean,
+      default: false,
     },
-    passwordConfirm: {
+    accountActivationToken: {
       type: String,
-      //required: [true, 'Please confirm your password'],
-      // This only works on create and save
-      /* validate: {
+    },
+    accountActivationExpires: {
+      type: Date,
+    },
+    local: {
+      name: {
+        type: String,
+        // required: [true, 'Your name is required.'],
+        trim: true,
+      },
+      email: {
+        type: String,
+        require: [true, 'Please add you email address.'],
+        unique: true,
+        lowercase: true,
+        validate: [validator.isEmail, 'Please provide a valid email'],
+      },
+      photo: String,
+      password: {
+        type: String,
+        // required: [true, 'Please provide a password'],
+        minlength: 8,
+        select: false, // Will not be shown in queries
+      },
+      passwordConfirm: {
+        type: String,
+        // required: [true, 'Please confirm your password'],
+        // This only works on create and save
+        /* validate: {
         validator(el) {
           return el === this.password;
         },
         message: 'Password and confirm password do not match',
       }, */
+      },
+      passwordChangedAt: {
+        type: Date,
+      },
+      passwordResetToken: {
+        type: String,
+      },
+      passwordResetExpires: {
+        type: Date,
+      },
     },
-    passwordChangedAt: {
-      type: Date,
-    },
-    passwordResetToken: {
-      type: String,
-    },
-    passwordResetExpires: {
-      type: Date,
+    google: {
+      id: {
+        type: String,
+      },
+      name: {
+        type: String,
+      },
+      photo: String,
+      email: {
+        type: String,
+        lowercase: true,
+      },
     },
   },
-  google: {
-    id: {
-      type: String,
-    },
-    name: {
-      type: String,
-    },
-    photo: String,
-    email: {
-      type: String,
-      lowercase: true,
-    },
-  },
-});
+  { timestamps: true }
+);
 
 userSchema.pre('save', async function (next) {
   try {
