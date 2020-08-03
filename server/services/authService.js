@@ -6,6 +6,43 @@ const sendMail = require('../utils/email');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 
+const userBasicDetails = (user) => {
+  if (user.method === 'local') {
+    const {
+      _id,
+      method,
+      role,
+      active,
+      local: { name, email }
+    } = user;
+
+    return {
+      _id,
+      method,
+      role,
+      active,
+      name,
+      email
+    };
+  }
+  const {
+    _id,
+    method,
+    role,
+    active,
+    google: { name, email }
+  } = user;
+
+  return {
+    _id,
+    method,
+    role,
+    active,
+    name,
+    email
+  };
+};
+
 const activateAccount = async (activationToken) => {
   if (!activationToken) throw new AppError('No Activation token found', 400);
 
@@ -16,7 +53,7 @@ const activateAccount = async (activationToken) => {
 
   const user = await User.findOne({
     accountActivationToken: hashedToken,
-    accountActivationExpires: { $gt: Date.now() },
+    accountActivationExpires: { $gt: Date.now() }
   });
 
   if (!user) {
@@ -33,7 +70,9 @@ const activateAccount = async (activationToken) => {
   user.active = true;
   await user.save();
 
-  return user;
+  return {
+    ...userBasicDetails(user)
+  };
 };
 
 const googleSignUp = async (body) => {
@@ -47,7 +86,7 @@ const googleSignUp = async (body) => {
 
   const ticket = await client.verifyIdToken({
     idToken: access_token,
-    audience: CLIENT_ID,
+    audience: CLIENT_ID
   });
 
   const { sub, name, email, picture } = ticket.getPayload();
@@ -72,16 +111,16 @@ const googleSignUp = async (body) => {
       id: sub,
       name,
       photo: picture,
-      email,
-    },
+      email
+    }
   });
 
   const activationToken = newUser.createAccountActivationToken();
   await newUser.save({ validateBeforeSave: false });
 
   return {
-    newUser,
-    activationToken,
+    ...userBasicDetails(newUser),
+    activationToken
   };
 };
 
@@ -96,7 +135,7 @@ const googleSignIn = async (body) => {
 
   const ticket = await client.verifyIdToken({
     idToken: access_token,
-    audience: CLIENT_ID,
+    audience: CLIENT_ID
   });
 
   const { sub, name, email, picture } = ticket.getPayload();
@@ -114,7 +153,9 @@ const googleSignIn = async (body) => {
       403
     );
 
-  return existingUser;
+  return {
+    ...userBasicDetails(existingUser)
+  };
 };
 
 const signup = async (body) => {
@@ -124,14 +165,14 @@ const signup = async (body) => {
     'local.email': body.email,
     role: body.role,
     'local.password': body.password,
-    'local.passwordConfirm': body.passwordConfirm,
+    'local.passwordConfirm': body.passwordConfirm
   });
 
   const activationToken = user.createAccountActivationToken();
   await user.save({ validateBeforeSave: false });
   return {
-    user,
-    activationToken,
+    ...userBasicDetails(user),
+    activationToken
   };
 };
 
@@ -150,38 +191,39 @@ const localLogin = async (body) => {
   if (!user.active)
     throw new AppError('You have not activated your account yet', 403);
 
-  // Remove password from object returned
-  return user;
+  return {
+    ...userBasicDetails(user)
+  };
 };
 
 const generateTokens = async (user) => {
   const { _id } = user;
   const access_token = await jwt.sign({ _id }, process.env.TOKENSECRET, {
-    expiresIn: process.env.TOKENEXPIRES,
+    expiresIn: process.env.TOKENEXPIRES
   });
 
   const refresh_token = await jwt.sign(
     { _id },
     process.env.REFRESHTOKENSECRET,
     {
-      expiresIn: process.env.REFRESHTOKENEXPIRES,
+      expiresIn: process.env.REFRESHTOKENEXPIRES
     }
   );
 
   return {
     access_token,
-    refresh_token,
+    refresh_token
   };
 };
 
 const generateAccessToken = async (user) => {
   const { _id } = user;
   const access_token = await jwt.sign({ _id }, process.env.TOKENSECRET, {
-    expiresIn: process.env.TOKENEXPIRES,
+    expiresIn: process.env.TOKENEXPIRES
   });
 
   return {
-    access_token,
+    access_token
   };
 };
 
@@ -210,7 +252,9 @@ const refreshToken = async (refreshToken) => {
     }
   }
 
-  return loggedInUser;
+  return {
+    ...userBasicDetails(loggedInUser)
+  };
 };
 
 const logout = async (body) => {
@@ -229,8 +273,8 @@ const createPwdResetToken = async (body) => {
   await user.save({ validateBeforeSave: false });
 
   return {
-    user,
-    resetToken,
+    ...userBasicDetails(user),
+    resetToken
   };
 };
 
@@ -248,7 +292,7 @@ const resetPassword = async (body, resetToken) => {
 
   const user = await User.findOne({
     'local.passwordResetToken': hashedToken,
-    'local.passwordResetExpires': { $gt: Date.now() },
+    'local.passwordResetExpires': { $gt: Date.now() }
   });
 
   if (!user) {
@@ -264,7 +308,9 @@ const resetPassword = async (body, resetToken) => {
   user.local.passwordResetExpires = undefined;
   await user.save();
 
-  return user;
+  return {
+    ...userBasicDetails(user)
+  };
 };
 
 const updatePassword = async (body) => {
@@ -279,7 +325,10 @@ const updatePassword = async (body) => {
   user.local.password = password;
   user.local.passwordConfirm = passwordConfirm;
 
-  return user.save();
+  const user = await user.save();
+  return {
+    ...userBasicDetails(user)
+  };
 };
 
 const sendAccountActivationEmail = async (user, activationToken, protocol) => {
@@ -304,7 +353,7 @@ const sendAccountActivationEmail = async (user, activationToken, protocol) => {
     await sendMail({
       email: emailAccount,
       subject: 'Activate Account',
-      message,
+      message
     });
 
     return;
@@ -341,7 +390,7 @@ const sendForgotPwdEmail = async (user, activationToken, protocol) => {
     await sendMail({
       email: emailAccount,
       subject: 'Reset password',
-      message,
+      message
     });
 
     return;
@@ -370,5 +419,5 @@ module.exports = {
   sendForgotPwdEmail,
   createPwdResetToken,
   resetPassword,
-  updatePassword,
+  updatePassword
 };
