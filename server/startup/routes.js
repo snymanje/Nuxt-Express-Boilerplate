@@ -11,6 +11,7 @@ const globalErrorHandler = require('../controllers/errorController');
 const profileRoutes = require('../router/profileRoutes');
 const userRoutes = require('../router/userRoutes');
 const authRoutes = require('../router/authRoutes');
+const logger = require('../utils/logger');
 
 module.exports = (app) => {
   const rateLimiter = rateLimit({
@@ -18,6 +19,7 @@ module.exports = (app) => {
     windowMs: 60 * 60 * 1000,
     message: 'Too many requests from this IP, try again later',
   });
+  app.use(require('morgan')('combined', { stream: logger.stream }));
   app.use(cookieParser());
   app.use(mongoSanitize());
   app.use(xss());

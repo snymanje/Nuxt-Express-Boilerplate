@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const winston = require('winston');
+const logger = require('../utils/logger');
 
 module.exports = () => {
   mongoose
@@ -11,6 +11,6 @@ module.exports = () => {
     })
     .then(() => {
       console.log('Connected to mongodb');
-      winston.info('Successfully connected to MongoDB');
+      logger.info('Successfully connected to MongoDB');
     });
 };

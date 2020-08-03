@@ -11,3 +11,4 @@ yarn-error.log
 .nyc_output
 /target
 /.vscode
+logs
