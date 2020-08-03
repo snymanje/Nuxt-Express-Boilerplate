@@ -1,10 +1,10 @@
-const AppError = require('../utils/appError');
-const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const crypto = require('crypto');
-const sendMail = require('../utils/email');
 const { OAuth2Client } = require('google-auth-library');
+const sendMail = require('../utils/email');
+const User = require('../models/userModel');
+const AppError = require('../utils/appError');
 
 const activateAccount = async (activationToken) => {
   if (!activationToken) throw new AppError('No Activation token found', 400);
@@ -70,9 +70,9 @@ const googleSignUp = async (body) => {
     method: 'google',
     google: {
       id: sub,
-      name: name,
+      name,
       photo: picture,
-      email: email,
+      email,
     },
   });
 
