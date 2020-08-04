@@ -83,6 +83,10 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.virtual('isVerified').get(function () {
+  return !(this.active && this.local.passwordResetExpires === undefined);
+});
+
 userSchema.pre('save', async function (next) {
   try {
     if (this.method !== 'local') {
@@ -174,6 +178,16 @@ userSchema.methods.createAccountActivationToken = function () {
     next(err);
   }
 };
+
+userSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  /*  transform: function (doc, ret) {
+      // remove these props when object is serialized
+      delete ret._id;
+      delete ret.passwordHash;
+  } */
+});
 
 // Model names always start with capital letter
 const User = mongoose.model('User', userSchema);

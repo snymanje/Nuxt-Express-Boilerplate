@@ -178,8 +178,6 @@ const signup = async (body) => {
 
 const localLogin = async (body) => {
   const { email, password } = body;
-  /* if (!email || !password)
-            throw new AppError('Please enter a username and password', 400); */
 
   const user = await User.findOne({ 'local.email': email }).select(
     '+local.password'
@@ -188,8 +186,11 @@ const localLogin = async (body) => {
   if (!user || !(await user.correctPassword(password, user.local.password)))
     throw new AppError('Incorrect username or password', 401);
 
-  if (!user.active)
-    throw new AppError('You have not activated your account yet', 403);
+  if (user.isVerified)
+    throw new AppError(
+      'You have not activated your account yet, or you have a pending password reset.',
+      403
+    );
 
   return {
     ...userBasicDetails(user),
@@ -273,17 +274,13 @@ const createPwdResetToken = async (body) => {
   await user.save({ validateBeforeSave: false });
 
   return {
-    ...userBasicDetails(user),
+    user: userBasicDetails(user),
     resetToken,
   };
 };
 
 const resetPassword = async (body, resetToken) => {
   const { password, passwordConfirm } = body;
-
-  if (password !== passwordConfirm) {
-    throw new AppError('Password and Confirm Password do not match.', 400);
-  }
 
   const hashedToken = crypto
     .createHash('sha256')
@@ -342,16 +339,9 @@ const sendAccountActivationEmail = async (user, activationToken, protocol) => {
     >Reset Password</a>
   </p>`;
 
-  let emailAccount;
-  if (user.method === 'local') {
-    emailAccount = user.local.email;
-  } else {
-    emailAccount = user.google.email;
-  }
-
   try {
     await sendMail({
-      email: emailAccount,
+      email: user.email,
       subject: 'Activate Account',
       message,
     });
@@ -379,16 +369,9 @@ const sendForgotPwdEmail = async (user, activationToken, protocol) => {
       >Reset Password</a>
     </p>`;
 
-  let emailAccount;
-  if (user.method === 'local') {
-    emailAccount = user.local.email;
-  } else {
-    emailAccount = user.google.email;
-  }
-
   try {
     await sendMail({
-      email: emailAccount,
+      email: user.email,
       subject: 'Reset password',
       message,
     });
