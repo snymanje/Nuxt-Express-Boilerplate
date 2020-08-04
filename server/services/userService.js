@@ -13,7 +13,7 @@ const getUser = async (id) => {
 };
 
 const getUsers = async () => {
-  const users = await User.find({});
+  const users = await User.find({}).limit(1000);
 
   if (!users) throw new AppError('Zero users found...', 400);
 
