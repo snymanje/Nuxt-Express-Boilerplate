@@ -8,15 +8,14 @@ const xss = require('xss-clean');
 const hpp = require('hpp'); // Parameter pollution
 const AppError = require('../utils/appError');
 const globalErrorHandler = require('../controllers/errorController');
-const profileRoutes = require('../router/profileRoutes');
 const userRoutes = require('../router/userRoutes');
 const authRoutes = require('../router/authRoutes');
 const logger = require('../utils/logger');
 
 module.exports = (app) => {
   const rateLimiter = rateLimit({
-    max: 100,
-    windowMs: 60 * 60 * 1000,
+    max: 1000,
+    windowMs: 60 * 1000,
     message: 'Too many requests from this IP, try again later',
   });
   app.use(require('morgan')('combined', { stream: logger.stream }));
@@ -35,13 +34,11 @@ module.exports = (app) => {
       credentials: true,
     })
   );
-  app.use('/auth', rateLimiter);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use('/auth', authRoutes);
-  app.use('/user', userRoutes);
-  app.use('/profile', profileRoutes);
+  app.use('/auth', rateLimiter, authRoutes);
+  app.use('/user', rateLimiter, userRoutes);
 
   // Catch all routes
   app.all('*', (req, res, next) => {

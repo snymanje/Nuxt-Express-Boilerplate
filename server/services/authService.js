@@ -5,43 +5,7 @@ const { OAuth2Client } = require('google-auth-library');
 const sendMail = require('../utils/sendEmail');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-
-const userBasicDetails = (user) => {
-  if (user.method === 'local') {
-    const {
-      _id,
-      method,
-      role,
-      active,
-      local: { name, email },
-    } = user;
-
-    return {
-      _id,
-      method,
-      role,
-      active,
-      name,
-      email,
-    };
-  }
-  const {
-    _id,
-    method,
-    role,
-    active,
-    google: { name, email },
-  } = user;
-
-  return {
-    _id,
-    method,
-    role,
-    active,
-    name,
-    email,
-  };
-};
+const { userBasicInfo } = require('../utils/basicUserInfo');
 
 const activateAccount = async (activationToken) => {
   if (!activationToken) throw new AppError('No Activation token found', 400);
@@ -71,7 +35,7 @@ const activateAccount = async (activationToken) => {
   await user.save();
 
   return {
-    ...userBasicDetails(user),
+    ...userBasicInfo(user),
   };
 };
 
@@ -119,7 +83,7 @@ const googleSignUp = async (body) => {
   await newUser.save({ validateBeforeSave: false });
 
   return {
-    ...userBasicDetails(newUser),
+    ...userBasicInfo(newUser),
     activationToken,
   };
 };
@@ -154,7 +118,7 @@ const googleSignIn = async (body) => {
     );
 
   return {
-    ...userBasicDetails(existingUser),
+    ...userBasicInfo(existingUser),
   };
 };
 
@@ -171,7 +135,7 @@ const signup = async (body) => {
   const activationToken = user.createAccountActivationToken();
   await user.save({ validateBeforeSave: false });
   return {
-    ...userBasicDetails(user),
+    ...userBasicInfo(user),
     activationToken,
   };
 };
@@ -193,7 +157,7 @@ const localLogin = async (body) => {
     );
 
   return {
-    ...userBasicDetails(user),
+    ...userBasicInfo(user),
   };
 };
 
@@ -254,7 +218,7 @@ const refreshToken = async (refreshToken) => {
   }
 
   return {
-    ...userBasicDetails(loggedInUser),
+    user: userBasicInfo(loggedInUser),
   };
 };
 
@@ -274,7 +238,7 @@ const createPwdResetToken = async (body) => {
   await user.save({ validateBeforeSave: false });
 
   return {
-    user: userBasicDetails(user),
+    user: userBasicInfo(user),
     resetToken,
   };
 };
@@ -306,7 +270,7 @@ const resetPassword = async (body, resetToken) => {
   await user.save();
 
   return {
-    ...userBasicDetails(user),
+    ...userBasicInfo(user),
   };
 };
 
@@ -324,7 +288,7 @@ const updatePassword = async (body) => {
 
   await user.save();
   return {
-    ...userBasicDetails(user),
+    ...userBasicInfo(user),
   };
 };
 
