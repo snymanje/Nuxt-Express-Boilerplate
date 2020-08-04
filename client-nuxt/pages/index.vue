@@ -25,6 +25,7 @@
             > Refresh tokens with automatic token refresh via axios interceptors
           </li>
           <li>> Validate request data validation using Joi</li>
+          <li>> Logging: using winston and morgan</li>
           <li>> Forgot\Reset Password</li>
           <li>> Update Password</li>
           <li>> Route guards</li>
@@ -32,10 +33,8 @@
         <p class="font-medium text-xl mt-4">What must still be included??</p>
         <ul>
           <li>> Unit Tests</li>
-          <li>> Logging: using winston and morgan</li>
           <li>> Token blacklisting</li>
           <li>> API documentation using postman and docgen</li>
-          <li>> Automated code quality via codacy</li>
           <li>> Automated code quality via codacy</li>
           <li>> Code coverage with coveralls</li>
           <li>> Switch to TypeScript</li>

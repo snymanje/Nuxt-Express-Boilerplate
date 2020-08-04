@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
-const sendMail = require('../utils/email');
+const sendMail = require('../utils/sendEmail');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 
